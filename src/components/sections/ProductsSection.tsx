@@ -1,56 +1,7 @@
 import { ShoppingBag, ArrowRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-
-const products = [
-  {
-    id: 1,
-    name: "Hoodie Noir Elite",
-    price: 89.99,
-    image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=400&h=500&fit=crop",
-    tag: "Novo",
-    category: "Hoodies"
-  },
-  {
-    id: 2,
-    name: "T-Shirt Urban Edge",
-    price: 45.99,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=500&fit=crop",
-    tag: null,
-    category: "T-Shirts"
-  },
-  {
-    id: 3,
-    name: "Jacket Street King",
-    price: 149.99,
-    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=500&fit=crop",
-    tag: "Best Seller",
-    category: "Jackets"
-  },
-  {
-    id: 4,
-    name: "Pants Shadow Tech",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=400&h=500&fit=crop",
-    tag: null,
-    category: "Pants"
-  },
-  {
-    id: 5,
-    name: "Cap Revolution",
-    price: 35.99,
-    image: "https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=400&h=500&fit=crop",
-    tag: "Promoção",
-    category: "Accessories"
-  },
-  {
-    id: 6,
-    name: "Sneakers Blaze",
-    price: 129.99,
-    image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=500&fit=crop",
-    tag: "Novo",
-    category: "Footwear"
-  }
-];
+import { products, Product } from "@/data/products";
 
 const ProductsSection = () => {
   return (
@@ -108,13 +59,13 @@ const ProductsSection = () => {
 };
 
 interface ProductCardProps {
-  product: typeof products[0];
+  product: Product;
   size?: 'normal' | 'large';
 }
 
 const ProductCard = ({ product, size = 'normal' }: ProductCardProps) => {
   return (
-    <div className="group relative overflow-hidden rounded-2xl glass cursor-pointer h-full">
+    <Link to={`/product/${product.id}`} className="group relative overflow-hidden rounded-2xl glass cursor-pointer h-full block">
       <div className={`relative ${size === 'large' ? 'aspect-[3/4]' : 'aspect-[4/5]'} overflow-hidden`}>
         <img 
           src={product.image} 
@@ -136,6 +87,7 @@ const ProductCard = ({ product, size = 'normal' }: ProductCardProps) => {
         <Button 
           size="icon"
           className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 neon-button rounded-full w-10 h-10"
+          onClick={(e) => e.preventDefault()}
         >
           <ShoppingBag className="w-4 h-4" />
         </Button>
@@ -149,13 +101,13 @@ const ProductCard = ({ product, size = 'normal' }: ProductCardProps) => {
           <p className="text-primary font-bold text-xl">€{product.price.toFixed(2)}</p>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
-const ProductCardWide = ({ product }: { product: typeof products[0] }) => {
+const ProductCardWide = ({ product }: { product: Product }) => {
   return (
-    <div className="group relative overflow-hidden rounded-2xl glass cursor-pointer">
+    <Link to={`/product/${product.id}`} className="group relative overflow-hidden rounded-2xl glass cursor-pointer block">
       <div className="grid md:grid-cols-2 gap-0">
         <div className="relative aspect-[16/9] md:aspect-auto overflow-hidden">
           <img 
@@ -178,14 +130,14 @@ const ProductCardWide = ({ product }: { product: typeof products[0] }) => {
           </p>
           <div className="flex items-center justify-between">
             <p className="text-primary font-bold text-2xl">€{product.price.toFixed(2)}</p>
-            <Button className="neon-button">
+            <Button className="neon-button" onClick={(e) => e.preventDefault()}>
               <ShoppingBag className="mr-2 w-4 h-4" />
               Adicionar
             </Button>
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 
