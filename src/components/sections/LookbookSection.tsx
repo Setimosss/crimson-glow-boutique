@@ -1,4 +1,5 @@
 import { ArrowUpRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 
 const looks = [
@@ -32,7 +33,13 @@ const LookbookSection = () => {
   return (
     <section className="py-32 relative">
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col md:flex-row md:items-end md:justify-between mb-16"
+        >
           <div>
             <span className="text-primary text-sm uppercase tracking-[0.3em] font-medium">Lookbook</span>
             <h2 className="text-4xl md:text-5xl font-bold mt-4">
@@ -45,12 +52,16 @@ const LookbookSection = () => {
             Combinações pensadas ao detalhe para te inspirar. 
             Descobre o teu próximo outfit completo.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {looks.map((look, index) => (
-            <div 
+            <motion.div 
               key={look.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.1 }}
               className={`group relative overflow-hidden rounded-2xl cursor-pointer ${
                 index === 0 ? 'row-span-2' : ''
               }`}
@@ -63,11 +74,11 @@ const LookbookSection = () => {
                 />
                 
                 {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
                 
                 {/* Content */}
                 <div className="absolute inset-0 p-6 flex flex-col justify-end">
-                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                  <div className="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
                     <p className="text-xs text-primary uppercase tracking-wider mb-2">{look.items} Peças</p>
                     <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">{look.title}</h3>
                     <Button 
@@ -81,7 +92,7 @@ const LookbookSection = () => {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

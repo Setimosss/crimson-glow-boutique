@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, ShoppingBag, Heart, Share2, Check, Minus, Plus } from "lucide-react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { getProductById } from "@/data/products";
 import AnimatedBackground from "@/components/AnimatedBackground";
@@ -23,12 +24,16 @@ const ProductPage = () => {
         <div className="relative z-10">
           <Header />
           <div className="min-h-screen flex items-center justify-center">
-            <div className="text-center">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-center"
+            >
               <h1 className="text-4xl font-bold text-foreground mb-4">Produto não encontrado</h1>
               <Button asChild className="neon-button">
                 <Link to="/">Voltar à Home</Link>
               </Button>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>
@@ -44,20 +49,35 @@ const ProductPage = () => {
         <main className="pt-24 pb-20">
           <div className="container mx-auto px-4">
             {/* Breadcrumb */}
-            <Link 
-              to="/" 
-              className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.4 }}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Voltar à Loja</span>
-            </Link>
+              <Link 
+                to="/" 
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Voltar à Loja</span>
+              </Link>
+            </motion.div>
 
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
               {/* Image Gallery */}
-              <div className="space-y-4">
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="space-y-4"
+              >
                 {/* Main Image */}
                 <div className="aspect-[3/4] rounded-2xl overflow-hidden glass relative group">
-                  <img 
+                  <motion.img 
+                    key={selectedImage}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
                     src={product.images[selectedImage]} 
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -72,10 +92,12 @@ const ProductPage = () => {
                 {/* Thumbnails */}
                 <div className="flex gap-3">
                   {product.images.map((img, index) => (
-                    <button
+                    <motion.button
                       key={index}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => setSelectedImage(index)}
-                      className={`flex-1 aspect-square rounded-xl overflow-hidden border-2 transition-all ${
+                      className={`flex-1 aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 ${
                         selectedImage === index 
                           ? 'border-primary neon-glow' 
                           : 'border-transparent opacity-60 hover:opacity-100'
@@ -86,13 +108,18 @@ const ProductPage = () => {
                         alt={`${product.name} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
-              </div>
+              </motion.div>
 
               {/* Product Info */}
-              <div className="lg:sticky lg:top-28 lg:self-start space-y-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="lg:sticky lg:top-28 lg:self-start space-y-8"
+              >
                 {/* Header */}
                 <div>
                   <p className="text-primary text-sm uppercase tracking-[0.2em] font-medium mb-2">
@@ -118,8 +145,10 @@ const ProductPage = () => {
                   </p>
                   <div className="flex gap-3">
                     {product.colors.map((color, index) => (
-                      <button
+                      <motion.button
                         key={index}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setSelectedColor(index)}
                         className={`w-10 h-10 rounded-full border-2 transition-all flex items-center justify-center ${
                           selectedColor === index 
@@ -131,7 +160,7 @@ const ProductPage = () => {
                         {selectedColor === index && (
                           <Check className={`w-5 h-5 ${color.hex === '#f5f5f5' ? 'text-background' : 'text-white'}`} />
                         )}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -148,8 +177,10 @@ const ProductPage = () => {
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {product.sizes.map((size) => (
-                      <button
+                      <motion.button
                         key={size}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={() => setSelectedSize(size)}
                         className={`min-w-[50px] px-4 py-3 rounded-lg border text-sm font-medium transition-all ${
                           selectedSize === size 
@@ -158,7 +189,7 @@ const ProductPage = () => {
                         }`}
                       >
                         {size}
-                      </button>
+                      </motion.button>
                     ))}
                   </div>
                 </div>
@@ -169,44 +200,52 @@ const ProductPage = () => {
                     Quantidade
                   </p>
                   <div className="flex items-center gap-4">
-                    <div className="flex items-center border border-border rounded-lg">
-                      <button 
+                    <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setQuantity(Math.max(1, quantity - 1))}
                         className="p-3 hover:bg-primary/10 transition-colors"
                       >
                         <Minus className="w-4 h-4" />
-                      </button>
+                      </motion.button>
                       <span className="w-12 text-center font-medium">{quantity}</span>
-                      <button 
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
                         onClick={() => setQuantity(quantity + 1)}
                         className="p-3 hover:bg-primary/10 transition-colors"
                       >
                         <Plus className="w-4 h-4" />
-                      </button>
+                      </motion.button>
                     </div>
                   </div>
                 </div>
 
                 {/* Actions */}
                 <div className="flex gap-4">
-                  <Button className="neon-button flex-1 py-6 text-base">
-                    <ShoppingBag className="mr-2 w-5 h-5" />
-                    Adicionar ao Carrinho
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="w-14 h-14 border-primary/30 hover:bg-primary/10 hover:border-primary"
-                  >
-                    <Heart className="w-5 h-5" />
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="w-14 h-14 border-primary/30 hover:bg-primary/10 hover:border-primary"
-                  >
-                    <Share2 className="w-5 h-5" />
-                  </Button>
+                  <motion.div className="flex-1" whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+                    <Button className="neon-button w-full py-6 text-base">
+                      <ShoppingBag className="mr-2 w-5 h-5" />
+                      Adicionar ao Carrinho
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      className="w-14 h-14 border-primary/30 hover:bg-primary/10 hover:border-primary"
+                    >
+                      <Heart className="w-5 h-5" />
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      className="w-14 h-14 border-primary/30 hover:bg-primary/10 hover:border-primary"
+                    >
+                      <Share2 className="w-5 h-5" />
+                    </Button>
+                  </motion.div>
                 </div>
 
                 {/* Product Details */}
@@ -214,14 +253,20 @@ const ProductPage = () => {
                   <h3 className="text-lg font-semibold text-foreground mb-4">Detalhes do Produto</h3>
                   <ul className="space-y-2">
                     {product.details.map((detail, index) => (
-                      <li key={index} className="flex items-center gap-3 text-muted-foreground">
+                      <motion.li 
+                        key={index} 
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                        className="flex items-center gap-3 text-muted-foreground"
+                      >
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                         {detail}
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </main>
