@@ -1,4 +1,5 @@
 import { Star, Quote } from "lucide-react";
+import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -34,20 +35,30 @@ const TestimonialsSection = () => {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-primary/5 blur-3xl" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-16"
+        >
           <span className="text-primary text-sm uppercase tracking-[0.3em] font-medium">Testemunhos</span>
           <h2 className="text-4xl md:text-5xl font-bold mt-4">
             O Que Dizem
             <br />
             <span className="text-primary neon-text">Sobre Nós</span>
           </h2>
-        </div>
+        </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <div 
+            <motion.div 
               key={testimonial.id}
-              className={`glass rounded-2xl p-8 relative ${
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: index * 0.15 }}
+              className={`glass rounded-2xl p-8 relative hover:bg-primary/5 transition-colors duration-500 ${
                 index === 1 ? 'md:-mt-8' : ''
               }`}
             >
@@ -76,7 +87,7 @@ const TestimonialsSection = () => {
                   <p className="text-sm text-muted-foreground">{testimonial.role}</p>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

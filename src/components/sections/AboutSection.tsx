@@ -1,4 +1,4 @@
-
+import { motion } from "framer-motion";
 
 const AboutSection = () => {
   return (
@@ -6,7 +6,13 @@ const AboutSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Image Side */}
-          <div className="relative">
+          <motion.div 
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7 }}
+            className="relative"
+          >
             <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
               <img 
                 src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=1000&fit=crop"
@@ -17,19 +23,37 @@ const AboutSection = () => {
             </div>
             
             {/* Floating Stats */}
-            <div className="absolute -bottom-8 -right-8 glass rounded-xl p-6 max-w-[200px]">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="absolute -bottom-8 -right-8 glass rounded-xl p-6 max-w-[200px]"
+            >
               <p className="text-4xl font-bold text-primary mb-1">5+</p>
               <p className="text-sm text-muted-foreground">Anos de Excelência</p>
-            </div>
+            </motion.div>
             
-            <div className="absolute -top-8 -left-8 glass rounded-xl p-6 max-w-[200px]">
+            <motion.div 
+              initial={{ opacity: 0, y: -20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="absolute -top-8 -left-8 glass rounded-xl p-6 max-w-[200px]"
+            >
               <p className="text-4xl font-bold text-primary mb-1">50k+</p>
               <p className="text-sm text-muted-foreground">Clientes Satisfeitos</p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Content Side */}
-          <div className="space-y-8">
+          <motion.div 
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="space-y-8"
+          >
             <div>
               <span className="text-primary text-sm uppercase tracking-[0.3em] font-medium">Sobre Nós</span>
               <h2 className="text-4xl md:text-5xl font-bold mt-4 mb-6">
@@ -45,23 +69,41 @@ const AboutSection = () => {
             </div>
 
             <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-2">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="space-y-2"
+              >
                 <div className="w-12 h-1 bg-primary rounded-full" />
                 <h3 className="text-xl font-semibold">Design Único</h3>
                 <p className="text-muted-foreground text-sm">
                   Peças exclusivas que não encontras em mais nenhum lugar.
                 </p>
-              </div>
-              <div className="space-y-2">
+              </motion.div>
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="space-y-2"
+              >
                 <div className="w-12 h-1 bg-primary rounded-full" />
                 <h3 className="text-xl font-semibold">Qualidade Premium</h3>
                 <p className="text-muted-foreground text-sm">
                   Materiais selecionados para durabilidade e conforto.
                 </p>
-              </div>
+              </motion.div>
             </div>
 
-            <div className="flex items-center gap-8 pt-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.5 }}
+              className="flex items-center gap-8 pt-4"
+            >
               <div className="flex -space-x-3">
                 {[1, 2, 3, 4].map((i) => (
                   <div 
@@ -80,8 +122,8 @@ const AboutSection = () => {
                 <span className="text-foreground font-semibold">+2.5k</span> pessoas 
                 <br />já confiam em nós
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </section>

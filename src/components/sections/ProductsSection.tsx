@@ -1,5 +1,6 @@
 import { ShoppingBag, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { products, Product } from "@/data/products";
 
@@ -7,7 +8,13 @@ const ProductsSection = () => {
   return (
     <section id="collection" className="py-32 relative">
       <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col md:flex-row md:items-end md:justify-between mb-16"
+        >
           <div>
             <span className="text-primary text-sm uppercase tracking-[0.3em] font-medium">Coleção</span>
             <h2 className="text-4xl md:text-5xl font-bold mt-4">
@@ -23,35 +30,71 @@ const ProductsSection = () => {
             Ver Tudo
             <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Button>
-        </div>
+        </motion.div>
 
         {/* Unique Grid Layout */}
         <div className="grid grid-cols-12 gap-4 md:gap-6">
           {/* Featured Large Product */}
-          <div className="col-span-12 md:col-span-6 lg:col-span-5 row-span-2">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="col-span-12 md:col-span-6 lg:col-span-5 row-span-2"
+          >
             <ProductCard product={products[0]} size="large" />
-          </div>
+          </motion.div>
 
           {/* Top Row */}
-          <div className="col-span-6 md:col-span-3 lg:col-span-4">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="col-span-6 md:col-span-3 lg:col-span-4"
+          >
             <ProductCard product={products[1]} />
-          </div>
-          <div className="col-span-6 md:col-span-3 lg:col-span-3">
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="col-span-6 md:col-span-3 lg:col-span-3"
+          >
             <ProductCard product={products[2]} />
-          </div>
+          </motion.div>
 
           {/* Bottom Row */}
-          <div className="col-span-6 md:col-span-3 lg:col-span-3">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="col-span-6 md:col-span-3 lg:col-span-3"
+          >
             <ProductCard product={products[3]} />
-          </div>
-          <div className="col-span-6 md:col-span-3 lg:col-span-4">
+          </motion.div>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="col-span-6 md:col-span-3 lg:col-span-4"
+          >
             <ProductCard product={products[4]} />
-          </div>
+          </motion.div>
 
           {/* Full Width */}
-          <div className="col-span-12">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="col-span-12"
+          >
             <ProductCardWide product={products[5]} />
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
@@ -74,7 +117,7 @@ const ProductCard = ({ product, size = 'normal' }: ProductCardProps) => {
         />
         
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-70" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
         
         {/* Tag */}
         {product.tag && (
@@ -93,7 +136,7 @@ const ProductCard = ({ product, size = 'normal' }: ProductCardProps) => {
         </Button>
 
         {/* Product Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-6">
+        <div className="absolute bottom-0 left-0 right-0 p-6 transform transition-transform duration-300 group-hover:translate-y-[-4px]">
           <p className="text-xs text-primary uppercase tracking-wider mb-2">{product.category}</p>
           <h3 className={`font-semibold text-foreground mb-2 ${size === 'large' ? 'text-2xl' : 'text-lg'}`}>
             {product.name}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -20,10 +21,17 @@ const NewsletterSection = () => {
 
   return (
     <section id="contact" className="py-24 relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-radial from-[#2B0505]/50 via-black to-black" />
+      {/* Gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-primary/5 to-transparent" />
       
       <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-2xl mx-auto text-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7 }}
+          className="max-w-2xl mx-auto text-center"
+        >
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="text-foreground">JUNTA-TE À </span>
             <span className="text-primary neon-text">TRIBO</span>
@@ -33,24 +41,37 @@ const NewsletterSection = () => {
             promoções e lançamentos especiais.
           </p>
 
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-4 justify-center">
+          <motion.form 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            onSubmit={handleSubmit} 
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
             <Input
               type="email"
               placeholder="O teu email..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="bg-input border-border focus:border-primary text-foreground placeholder:text-muted-foreground max-w-sm"
+              className="bg-input border-border focus:border-primary text-foreground placeholder:text-muted-foreground max-w-sm h-12"
               required
             />
-            <Button type="submit" className="neon-button">
+            <Button type="submit" className="neon-button h-12">
               Subscrever
             </Button>
-          </form>
+          </motion.form>
 
-          <p className="text-muted-foreground text-xs mt-4">
+          <motion.p 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="text-muted-foreground text-xs mt-4"
+          >
             Ao subscrever, aceitas receber emails de marketing. Podes cancelar a qualquer momento.
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
     </section>
   );
