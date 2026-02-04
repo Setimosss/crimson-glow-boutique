@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Minus, Plus, ShoppingBag, Truck, Shield, RotateCcw, Check } from "lucide-react";
+import { ArrowLeft, Heart, Minus, Plus, ShoppingBag, Truck, Shield, RotateCcw, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useProductBySlug, useProducts } from "@/hooks/useProducts";
+import { useCart } from "@/contexts/CartContext";
+import { useToast } from "@/hooks/use-toast";
 import type { ProductColor } from "@/types/database";
 
 const ProductPage = () => {
@@ -14,11 +16,14 @@ const ProductPage = () => {
   const navigate = useNavigate();
   const { data: product, isLoading, error } = useProductBySlug(id || "");
   const { data: allProducts } = useProducts();
+  const { addItem } = useCart();
+  const { toast } = useToast();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [selectedColor, setSelectedColor] = useState<ProductColor | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   if (isLoading) {
     return (
@@ -244,10 +249,31 @@ const ProductPage = () => {
                 <div className="flex gap-4 pt-4">
                   <Button 
                     className="flex-1 neon-button py-6 text-base"
-                    disabled={product.stock === 0}
+                    disabled={product.stock === 0 || isAddingToCart}
+                    onClick={async () => {
+                      if (product.sizes.length > 0 && !selectedSize) {
+                        toast({
+                          title: "Seleciona um tamanho",
+                          variant: "destructive",
+                        });
+                        return;
+                      }
+                      setIsAddingToCart(true);
+                      await addItem(
+                        product.id, 
+                        quantity, 
+                        selectedSize || undefined, 
+                        selectedColor?.name
+                      );
+                      setIsAddingToCart(false);
+                    }}
                   >
-                    <ShoppingBag className="mr-2 h-5 w-5" />
-                    Adicionar ao Carrinho
+                    {isAddingToCart ? (
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                      <ShoppingBag className="mr-2 h-5 w-5" />
+                    )}
+                    {product.stock === 0 ? "Esgotado" : "Adicionar ao Carrinho"}
                   </Button>
                   <Button 
                     variant="outline" 
