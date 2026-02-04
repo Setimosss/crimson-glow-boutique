@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useProducts, useCategories } from "@/hooks/useProducts";
+import { useCart } from "@/contexts/CartContext";
 import { useState } from "react";
 import type { Product } from "@/types/database";
 
@@ -105,6 +106,7 @@ const ProductsSection = () => {
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const { addItem } = useCart();
 
   return (
     <motion.div
@@ -161,7 +163,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
                 className="w-9 h-9 rounded-full bg-background/90 backdrop-blur-sm flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
                 onClick={(e) => {
                   e.preventDefault();
-                  // TODO: Quick add to cart
+                  addItem(product.id, 1, product.sizes[0] || undefined);
                 }}
               >
                 <ShoppingBag className="w-4 h-4" />
