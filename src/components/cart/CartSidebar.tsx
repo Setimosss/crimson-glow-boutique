@@ -1,30 +1,23 @@
-import { X, Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
-
-const CartSidebar = () => {
-  const { items, isOpen, setIsOpen, updateQuantity, removeItem, total, isLoading } = useCart();
-  const { user } = useAuth();
-
-  return (
-    <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent className="w-full sm:max-w-md bg-background border-l border-border flex flex-col">
-        <SheetHeader className="border-b border-border pb-4">
-          <SheetTitle className="flex items-center gap-2 text-foreground">
-            <ShoppingBag className="w-5 h-5 text-primary" />
-            Carrinho
-          </SheetTitle>
-        </SheetHeader>
-
-        {!user ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-6">
-            <ShoppingBag className="w-16 h-16 text-muted-foreground/30" />
-            <p className="text-muted-foreground">Inicia sessão para ver o teu carrinho</p>
-          </div>
-        ) : items.length === 0 ? (
+ import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
+ import { Link } from "react-router-dom";
+ import { Button } from "@/components/ui/button";
+ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+ import { useCart } from "@/contexts/CartContext";
+ 
+ const CartSidebar = () => {
+   const { items, isOpen, setIsOpen, updateQuantity, removeItem, total } = useCart();
+ 
+   return (
+     <Sheet open={isOpen} onOpenChange={setIsOpen}>
+       <SheetContent className="w-full sm:max-w-md bg-background border-l border-border flex flex-col">
+         <SheetHeader className="border-b border-border pb-4">
+           <SheetTitle className="flex items-center gap-2 text-foreground">
+             <ShoppingBag className="w-5 h-5 text-primary" />
+             Carrinho
+           </SheetTitle>
+         </SheetHeader>
+ 
+         {items.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-6">
             <ShoppingBag className="w-16 h-16 text-muted-foreground/30" />
             <p className="text-muted-foreground">O teu carrinho está vazio</p>

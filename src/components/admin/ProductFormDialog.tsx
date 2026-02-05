@@ -1,39 +1,77 @@
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { Product } from "@/types/database";
-import { Loader2 } from "lucide-react";
-
-interface ProductFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  product: Product | null;
-  onSuccess: () => void;
-}
-
-const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFormDialogProps) => {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const [formData, setFormData] = useState({
-    name: product?.name || "",
-    slug: product?.slug || "",
-    description: product?.description || "",
-    price: product?.price?.toString() || "",
-    compare_at_price: product?.compare_at_price?.toString() || "",
-    stock: product?.stock?.toString() || "10",
-    tag: product?.tag || "",
-    images: product?.images?.join("\n") || "",
-    sizes: product?.sizes?.join(", ") || "S, M, L, XL",
-    is_featured: product?.is_featured || false,
-    is_active: product?.is_active ?? true,
-  });
+ import { useState, useEffect } from "react";
+ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+ import { Button } from "@/components/ui/button";
+ import { Input } from "@/components/ui/input";
+ import { Label } from "@/components/ui/label";
+ import { Textarea } from "@/components/ui/textarea";
+ import { Switch } from "@/components/ui/switch";
+ import { supabase } from "@/integrations/supabase/client";
+ import { useToast } from "@/hooks/use-toast";
+ import { Product } from "@/types/database";
+ import { Loader2 } from "lucide-react";
+ 
+ interface ProductFormDialogProps {
+   open: boolean;
+   onOpenChange: (open: boolean) => void;
+   product: Product | null;
+   onSuccess: () => void;
+ }
+ 
+ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFormDialogProps) => {
+   const { toast } = useToast();
+   const [isLoading, setIsLoading] = useState(false);
+   
+   const [formData, setFormData] = useState({
+     name: "",
+     slug: "",
+     description: "",
+     price: "",
+     compare_at_price: "",
+     stock: "10",
+     tag: "",
+     images: "",
+     sizes: "S, M, L, XL",
+     details: "",
+     is_featured: false,
+     is_active: true,
+   });
+ 
+   // Update form when product changes or dialog opens
+   useEffect(() => {
+     if (open) {
+       if (product) {
+         setFormData({
+           name: product.name || "",
+           slug: product.slug || "",
+           description: product.description || "",
+           price: product.price?.toString() || "",
+           compare_at_price: product.compare_at_price?.toString() || "",
+           stock: product.stock?.toString() || "10",
+           tag: product.tag || "",
+           images: product.images?.join("\n") || "",
+           sizes: product.sizes?.join(", ") || "S, M, L, XL",
+           details: product.details?.join("\n") || "",
+           is_featured: product.is_featured || false,
+           is_active: product.is_active ?? true,
+         });
+       } else {
+         setFormData({
+           name: "",
+           slug: "",
+           description: "",
+           price: "",
+           compare_at_price: "",
+           stock: "10",
+           tag: "",
+           images: "",
+           sizes: "S, M, L, XL",
+           details: "",
+           is_featured: false,
+           is_active: true,
+         });
+       }
+     }
+   }, [product, open]);
 
   const generateSlug = (name: string) => {
     return name
@@ -56,19 +94,20 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
     e.preventDefault();
     setIsLoading(true);
 
-    const productData = {
-      name: formData.name,
-      slug: formData.slug || generateSlug(formData.name),
-      description: formData.description || null,
-      price: parseFloat(formData.price),
-      compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
-      stock: parseInt(formData.stock) || 0,
-      tag: formData.tag || null,
-      images: formData.images.split("\n").filter((url) => url.trim()),
-      sizes: formData.sizes.split(",").map((s) => s.trim()).filter(Boolean),
-      is_featured: formData.is_featured,
-      is_active: formData.is_active,
-    };
+     const productData = {
+       name: formData.name,
+       slug: formData.slug || generateSlug(formData.name),
+       description: formData.description || null,
+       price: parseFloat(formData.price),
+       compare_at_price: formData.compare_at_price ? parseFloat(formData.compare_at_price) : null,
+       stock: parseInt(formData.stock) || 0,
+       tag: formData.tag || null,
+       images: formData.images.split("\n").filter((url) => url.trim()),
+       sizes: formData.sizes.split(",").map((s) => s.trim()).filter(Boolean),
+       details: formData.details.split("\n").filter((d) => d.trim()),
+       is_featured: formData.is_featured,
+       is_active: formData.is_active,
+     };
 
     try {
       if (product) {
@@ -198,17 +237,29 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="images">URLs das Imagens (uma por linha)</Label>
-            <Textarea
-              id="images"
-              value={formData.images}
-              onChange={(e) => setFormData({ ...formData, images: e.target.value })}
-              className="bg-input border-border resize-none"
-              rows={3}
-              placeholder="https://..."
-            />
-          </div>
+           <div className="space-y-2">
+             <Label htmlFor="images">URLs das Imagens (uma por linha)</Label>
+             <Textarea
+               id="images"
+               value={formData.images}
+               onChange={(e) => setFormData({ ...formData, images: e.target.value })}
+               className="bg-input border-border resize-none"
+               rows={3}
+               placeholder="https://..."
+             />
+           </div>
+ 
+           <div className="space-y-2">
+             <Label htmlFor="details">Detalhes do Produto (um por linha)</Label>
+             <Textarea
+               id="details"
+               value={formData.details}
+               onChange={(e) => setFormData({ ...formData, details: e.target.value })}
+               className="bg-input border-border resize-none"
+               rows={3}
+               placeholder="100% Algodão&#10;Corte Regular&#10;Feito em Portugal"
+             />
+           </div>
 
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">

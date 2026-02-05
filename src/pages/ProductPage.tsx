@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Heart, Minus, Plus, ShoppingBag, Truck, Shield, RotateCcw, Check, Loader2 } from "lucide-react";
+ import { useState } from "react";
+ import { useParams, Link, useNavigate } from "react-router-dom";
+ import { ArrowLeft, Minus, Plus, ShoppingBag, Truck, Shield, RotateCcw, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import AnimatedBackground from "@/components/AnimatedBackground";
@@ -245,44 +245,37 @@ const ProductPage = () => {
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex gap-4 pt-4">
-                  <Button 
-                    className="flex-1 neon-button py-6 text-base"
-                    disabled={product.stock === 0 || isAddingToCart}
-                    onClick={async () => {
-                      if (product.sizes.length > 0 && !selectedSize) {
-                        toast({
-                          title: "Seleciona um tamanho",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-                      setIsAddingToCart(true);
-                      await addItem(
-                        product.id, 
-                        quantity, 
-                        selectedSize || undefined, 
-                        selectedColor?.name
-                      );
-                      setIsAddingToCart(false);
-                    }}
-                  >
-                    {isAddingToCart ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                      <ShoppingBag className="mr-2 h-5 w-5" />
-                    )}
-                    {product.stock === 0 ? "Esgotado" : "Adicionar ao Carrinho"}
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="icon"
-                    className="border-primary/30 hover:bg-primary/10 h-14 w-14"
-                  >
-                    <Heart className="h-5 w-5" />
-                  </Button>
-                </div>
+                 {/* Actions */}
+                 <div className="flex gap-4 pt-4">
+                   <Button 
+                     className="flex-1 neon-button py-6 text-base"
+                     disabled={product.stock === 0 || isAddingToCart}
+                     onClick={async () => {
+                       if (product.sizes.length > 0 && !selectedSize) {
+                         toast({
+                           title: "Seleciona um tamanho",
+                           variant: "destructive",
+                         });
+                         return;
+                       }
+                       setIsAddingToCart(true);
+                       await addItem(
+                         product.id, 
+                         quantity, 
+                         selectedSize || undefined, 
+                         selectedColor?.name
+                       );
+                       setIsAddingToCart(false);
+                     }}
+                   >
+                     {isAddingToCart ? (
+                       <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                     ) : (
+                       <ShoppingBag className="mr-2 h-5 w-5" />
+                     )}
+                     {product.stock === 0 ? "Esgotado" : "Adicionar ao Carrinho"}
+                   </Button>
+                 </div>
 
                 {/* Features */}
                 <div className="grid grid-cols-3 gap-4 pt-6 border-t border-primary/10">
