@@ -1,36 +1,34 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Smartphone, Loader2, CheckCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useCart } from "@/contexts/CartContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import Header from "@/components/layout/Header";
-import AnimatedBackground from "@/components/AnimatedBackground";
-
-const CheckoutPage = () => {
-  const { items, total, clearCart } = useCart();
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [orderComplete, setOrderComplete] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("mbway");
-  
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: user?.email || "",
-    phone: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    country: "Portugal",
-  });
+ import { useState } from "react";
+ import { useNavigate } from "react-router-dom";
+ import { ArrowLeft, CreditCard, Smartphone, Loader2, CheckCircle } from "lucide-react";
+ import { Button } from "@/components/ui/button";
+ import { Input } from "@/components/ui/input";
+ import { Label } from "@/components/ui/label";
+ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+ import { useCart } from "@/contexts/CartContext";
+ import { supabase } from "@/integrations/supabase/client";
+ import { useToast } from "@/hooks/use-toast";
+ import Header from "@/components/layout/Header";
+ import AnimatedBackground from "@/components/AnimatedBackground";
+ 
+ const CheckoutPage = () => {
+   const { items, total, clearCart } = useCart();
+   const { toast } = useToast();
+   const navigate = useNavigate();
+   
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [orderComplete, setOrderComplete] = useState(false);
+   const [paymentMethod, setPaymentMethod] = useState("mbway");
+   
+   const [formData, setFormData] = useState({
+     fullName: "",
+     email: "",
+     phone: "",
+     address: "",
+     city: "",
+     postalCode: "",
+     country: "Portugal",
+   });
 
   const shippingCost = total >= 50 ? 0 : 4.99;
   const finalTotal = total + shippingCost;
@@ -39,19 +37,11 @@ const CheckoutPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user) {
-      toast({
-        title: "Inicia sessão",
-        description: "Precisas de estar autenticado para finalizar a compra",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (items.length === 0) {
+ 
+   const handleSubmit = async (e: React.FormEvent) => {
+     e.preventDefault();
+ 
+     if (items.length === 0) {
       toast({
         title: "Carrinho vazio",
         description: "Adiciona produtos ao carrinho primeiro",
@@ -62,28 +52,29 @@ const CheckoutPage = () => {
 
     setIsSubmitting(true);
 
-    try {
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
-          status: "pending",
-          subtotal: total,
-          shipping: shippingCost,
-          total: finalTotal,
-          shipping_address: {
-            full_name: formData.fullName,
-            address: formData.address,
-            city: formData.city,
-            postal_code: formData.postalCode,
-            country: formData.country,
-            phone: formData.phone,
-          },
-          notes: `Pagamento: ${paymentMethod.toUpperCase()}`,
-        })
-        .select()
-        .single();
+     try {
+       // Create order (without user_id for guest checkout)
+       const { data: order, error: orderError } = await supabase
+         .from("orders")
+         .insert({
+           user_id: null,
+           status: "pending",
+           subtotal: total,
+           shipping: shippingCost,
+           total: finalTotal,
+           shipping_address: {
+             full_name: formData.fullName,
+             email: formData.email,
+             address: formData.address,
+             city: formData.city,
+             postal_code: formData.postalCode,
+             country: formData.country,
+             phone: formData.phone,
+           },
+           notes: `Pagamento: ${paymentMethod.toUpperCase()}`,
+         })
+         .select()
+         .single();
 
       if (orderError) throw orderError;
 
