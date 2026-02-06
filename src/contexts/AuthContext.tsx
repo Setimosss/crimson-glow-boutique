@@ -22,12 +22,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isAdmin, setIsAdmin] = useState(false);
 
   const checkAdminRole = async (): Promise<boolean> => {
-    if (!user) return false;
+    // Get user from session directly to avoid React state race condition
+    const { data: { session: currentSession } } = await supabase.auth.getSession();
+    const currentUser = currentSession?.user;
+    if (!currentUser) return false;
     
     const { data, error } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", user.id)
+      .eq("user_id", currentUser.id)
       .eq("role", "admin")
       .maybeSingle();
     
