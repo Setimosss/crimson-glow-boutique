@@ -1,34 +1,36 @@
- import { useState } from "react";
- import { useNavigate } from "react-router-dom";
- import { ArrowLeft, CreditCard, Smartphone, Loader2, CheckCircle } from "lucide-react";
- import { Button } from "@/components/ui/button";
- import { Input } from "@/components/ui/input";
- import { Label } from "@/components/ui/label";
- import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
- import { useCart } from "@/contexts/CartContext";
- import { supabase } from "@/integrations/supabase/client";
- import { useToast } from "@/hooks/use-toast";
- import Header from "@/components/layout/Header";
- import AnimatedBackground from "@/components/AnimatedBackground";
- 
- const CheckoutPage = () => {
-   const { items, total, clearCart } = useCart();
-   const { toast } = useToast();
-   const navigate = useNavigate();
-   
-   const [isSubmitting, setIsSubmitting] = useState(false);
-   const [orderComplete, setOrderComplete] = useState(false);
-   const [paymentMethod, setPaymentMethod] = useState("mbway");
-   
-   const [formData, setFormData] = useState({
-     fullName: "",
-     email: "",
-     phone: "",
-     address: "",
-     city: "",
-     postalCode: "",
-     country: "Portugal",
-   });
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, CreditCard, Smartphone, Loader2, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useCart } from "@/contexts/CartContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/layout/Header";
+import AnimatedBackground from "@/components/AnimatedBackground";
+import MbWayPayment from "@/components/checkout/MbWayPayment";
+
+const CheckoutPage = () => {
+  const { items, total, clearCart } = useCart();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderComplete, setOrderComplete] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("mbway");
+  const [showPayment, setShowPayment] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "Portugal",
+  });
 
   const shippingCost = total >= 50 ? 0 : 4.99;
   const finalTotal = total + shippingCost;
@@ -37,11 +39,9 @@
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- 
-   const handleSubmit = async (e: React.FormEvent) => {
-     e.preventDefault();
- 
-     if (items.length === 0) {
+  const handleProceedToPayment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (items.length === 0) {
       toast({
         title: "Carrinho vazio",
         description: "Adiciona produtos ao carrinho primeiro",
@@ -49,14 +49,15 @@
       });
       return;
     }
+    setShowPayment(true);
+  };
 
+  const handlePaymentConfirmed = async () => {
     setIsSubmitting(true);
 
     try {
-      // Generate order ID client-side for guest checkout (avoids SELECT RLS issue)
       const orderId = crypto.randomUUID();
 
-      // Create order (without user_id for guest checkout)
       const { error: orderError } = await supabase
         .from("orders")
         .insert({
@@ -78,11 +79,10 @@
           notes: `Pagamento: ${paymentMethod.toUpperCase()}`,
         });
 
-     if (orderError) throw orderError;
+      if (orderError) throw orderError;
 
-     // Create order items
-     const orderItems = items.map((item) => ({
-       order_id: orderId,
+      const orderItems = items.map((item) => ({
+        order_id: orderId,
         product_id: item.product_id,
         product_name: item.product?.name || "Produto",
         product_image: item.product?.images?.[0] || null,
@@ -98,9 +98,7 @@
 
       if (itemsError) throw itemsError;
 
-      // Clear cart
       await clearCart();
-      
       setOrderComplete(true);
     } catch (error) {
       console.error("Order error:", error);
@@ -128,9 +126,6 @@
                 <p className="text-muted-foreground mb-6">
                   Obrigado pela tua compra. Receberás um email com os detalhes da encomenda.
                 </p>
-                <p className="text-sm text-muted-foreground mb-6">
-                  {paymentMethod === "mbway" && "Receberás uma notificação no MB Way para confirmar o pagamento."}
-                </p>
                 <Button onClick={() => navigate("/")} className="neon-button">
                   Voltar à Loja
                 </Button>
@@ -150,7 +145,7 @@
         <main className="container mx-auto px-4 pt-24 pb-12">
           <Button
             variant="ghost"
-            onClick={() => navigate(-1)}
+            onClick={() => showPayment ? setShowPayment(false) : navigate(-1)}
             className="mb-6 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -158,133 +153,133 @@
           </Button>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Checkout Form */}
+            {/* Left Side: Form or Payment */}
             <div className="bg-card border border-border rounded-2xl p-6">
-              <h1 className="text-2xl font-bold text-foreground mb-6">Checkout</h1>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Contact */}
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-foreground">Contacto</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fullName">Nome Completo</Label>
-                      <Input
-                        id="fullName"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleInputChange}
-                        className="bg-input border-border"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        className="bg-input border-border"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Telemóvel</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="9XX XXX XXX"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="bg-input border-border"
-                      required
+              {showPayment ? (
+                <>
+                  <h1 className="text-2xl font-bold text-foreground mb-6">Pagamento</h1>
+                  {paymentMethod === "mbway" ? (
+                    <MbWayPayment
+                      phone={formData.phone}
+                      total={finalTotal}
+                      onPaymentConfirmed={handlePaymentConfirmed}
+                      onCancel={() => setShowPayment(false)}
                     />
-                  </div>
-                </div>
-
-                {/* Shipping */}
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-foreground">Morada de Envio</h2>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Morada</Label>
-                    <Input
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      className="bg-input border-border"
-                      required
-                    />
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="city">Cidade</Label>
-                      <Input
-                        id="city"
-                        name="city"
-                        value={formData.city}
-                        onChange={handleInputChange}
-                        className="bg-input border-border"
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="postalCode">Código Postal</Label>
-                      <Input
-                        id="postalCode"
-                        name="postalCode"
-                        placeholder="XXXX-XXX"
-                        value={formData.postalCode}
-                        onChange={handleInputChange}
-                        className="bg-input border-border"
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment */}
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold text-foreground">Método de Pagamento</h2>
-                  <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-                    <div className="flex items-center space-x-3 bg-input border border-border rounded-lg p-4 cursor-pointer hover:border-primary/50">
-                      <RadioGroupItem value="mbway" id="mbway" />
-                      <Label htmlFor="mbway" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <Smartphone className="w-5 h-5 text-primary" />
-                        <div>
-                          <p className="font-medium">MB Way</p>
-                          <p className="text-xs text-muted-foreground">Paga com o teu telemóvel</p>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <CreditCard className="w-5 h-5 text-primary" />
                         </div>
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-3 bg-input border border-border rounded-lg p-4 cursor-pointer hover:border-primary/50">
-                      <RadioGroupItem value="multibanco" id="multibanco" />
-                      <Label htmlFor="multibanco" className="flex items-center gap-2 cursor-pointer flex-1">
-                        <CreditCard className="w-5 h-5 text-primary" />
                         <div>
-                          <p className="font-medium">Multibanco / Referência</p>
+                          <h3 className="font-semibold text-foreground">Referência Multibanco</h3>
                           <p className="text-xs text-muted-foreground">Receberás os dados por email</p>
                         </div>
-                      </Label>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-3 text-center">
+                        <p className="text-sm text-muted-foreground">Total a pagar</p>
+                        <p className="text-2xl font-bold text-primary">€{finalTotal.toFixed(2)}</p>
+                      </div>
+                      <p className="text-sm text-muted-foreground text-center">
+                        Após confirmares, receberás os dados de pagamento por email para <span className="text-foreground font-medium">{formData.email}</span>
+                      </p>
+                      <div className="flex gap-3">
+                        <Button variant="outline" onClick={() => setShowPayment(false)} className="flex-1">
+                          Voltar
+                        </Button>
+                        <Button 
+                          onClick={handlePaymentConfirmed} 
+                          className="flex-1 neon-button"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              A processar...
+                            </>
+                          ) : (
+                            "Confirmar Encomenda"
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </RadioGroup>
-                </div>
-
-                <Button type="submit" className="w-full neon-button py-6" disabled={isSubmitting || items.length === 0}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      A processar...
-                    </>
-                  ) : (
-                    `Confirmar Encomenda — €${finalTotal.toFixed(2)}`
                   )}
-                </Button>
-              </form>
+                </>
+              ) : (
+                <>
+                  <h1 className="text-2xl font-bold text-foreground mb-6">Checkout</h1>
+                  <form onSubmit={handleProceedToPayment} className="space-y-6">
+                    {/* Contact */}
+                    <div className="space-y-4">
+                      <h2 className="text-lg font-semibold text-foreground">Contacto</h2>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="fullName">Nome Completo</Label>
+                          <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleInputChange} className="bg-input border-border" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="email">Email</Label>
+                          <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="bg-input border-border" required />
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Telemóvel</Label>
+                        <Input id="phone" name="phone" type="tel" placeholder="9XX XXX XXX" value={formData.phone} onChange={handleInputChange} className="bg-input border-border" required />
+                      </div>
+                    </div>
+
+                    {/* Shipping */}
+                    <div className="space-y-4">
+                      <h2 className="text-lg font-semibold text-foreground">Morada de Envio</h2>
+                      <div className="space-y-2">
+                        <Label htmlFor="address">Morada</Label>
+                        <Input id="address" name="address" value={formData.address} onChange={handleInputChange} className="bg-input border-border" required />
+                      </div>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="city">Cidade</Label>
+                          <Input id="city" name="city" value={formData.city} onChange={handleInputChange} className="bg-input border-border" required />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="postalCode">Código Postal</Label>
+                          <Input id="postalCode" name="postalCode" placeholder="XXXX-XXX" value={formData.postalCode} onChange={handleInputChange} className="bg-input border-border" required />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Payment Method Selection */}
+                    <div className="space-y-4">
+                      <h2 className="text-lg font-semibold text-foreground">Método de Pagamento</h2>
+                      <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                        <div className="flex items-center space-x-3 bg-input border border-border rounded-lg p-4 cursor-pointer hover:border-primary/50">
+                          <RadioGroupItem value="mbway" id="mbway" />
+                          <Label htmlFor="mbway" className="flex items-center gap-2 cursor-pointer flex-1">
+                            <Smartphone className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-medium">MB Way</p>
+                              <p className="text-xs text-muted-foreground">Paga com o teu telemóvel</p>
+                            </div>
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-3 bg-input border border-border rounded-lg p-4 cursor-pointer hover:border-primary/50">
+                          <RadioGroupItem value="multibanco" id="multibanco" />
+                          <Label htmlFor="multibanco" className="flex items-center gap-2 cursor-pointer flex-1">
+                            <CreditCard className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-medium">Multibanco / Referência</p>
+                              <p className="text-xs text-muted-foreground">Receberás os dados por email</p>
+                            </div>
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+
+                    <Button type="submit" className="w-full neon-button py-6" disabled={items.length === 0}>
+                      Avançar para Pagamento — €{finalTotal.toFixed(2)}
+                    </Button>
+                  </form>
+                </>
+              )}
             </div>
 
             {/* Order Summary */}
@@ -296,11 +291,7 @@
                   <div key={item.id} className="flex gap-3">
                     <div className="w-16 h-20 bg-muted rounded-md overflow-hidden flex-shrink-0">
                       {item.product?.images?.[0] && (
-                        <img
-                          src={item.product.images[0]}
-                          alt={item.product.name}
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-cover" />
                       )}
                     </div>
                     <div className="flex-1">
