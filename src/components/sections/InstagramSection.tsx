@@ -1,8 +1,8 @@
 import { Instagram } from "lucide-react";
 import { motion } from "framer-motion";
 
-// Using the single post image from @_tread.trendz_ for all squares
-const postImage = "https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=400&h=400&fit=crop";
+// Using the actual Instagram post image from @_tread.trendz_
+const postImage = "/images/insta-post.jpg";
 
 const InstagramSection = () => {
   return (
@@ -18,7 +18,7 @@ const InstagramSection = () => {
           <a 
             href="https://www.instagram.com/_tread.trendz_/" 
             target="_blank" 
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
             className="inline-flex items-center gap-3 text-foreground hover:text-primary transition-colors group"
           >
             <Instagram className="w-6 h-6" />
@@ -45,7 +45,7 @@ const InstagramSection = () => {
             transition={{ duration: 0.4, delay: index * 0.05 }}
             href="https://www.instagram.com/_tread.trendz_/"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener noreferrer nofollow"
             className="relative aspect-square overflow-hidden group"
           >
             <img 

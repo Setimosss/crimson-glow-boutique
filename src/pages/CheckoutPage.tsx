@@ -52,35 +52,37 @@
 
     setIsSubmitting(true);
 
-     try {
-       // Create order (without user_id for guest checkout)
-       const { data: order, error: orderError } = await supabase
-         .from("orders")
-         .insert({
-           user_id: null,
-           status: "pending",
-           subtotal: total,
-           shipping: shippingCost,
-           total: finalTotal,
-           shipping_address: {
-             full_name: formData.fullName,
-             email: formData.email,
-             address: formData.address,
-             city: formData.city,
-             postal_code: formData.postalCode,
-             country: formData.country,
-             phone: formData.phone,
-           },
-           notes: `Pagamento: ${paymentMethod.toUpperCase()}`,
-         })
-         .select()
-         .single();
+    try {
+      // Generate order ID client-side for guest checkout (avoids SELECT RLS issue)
+      const orderId = crypto.randomUUID();
 
-      if (orderError) throw orderError;
+      // Create order (without user_id for guest checkout)
+      const { error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          id: orderId,
+          user_id: null,
+          status: "pending",
+          subtotal: total,
+          shipping: shippingCost,
+          total: finalTotal,
+          shipping_address: {
+            full_name: formData.fullName,
+            email: formData.email,
+            address: formData.address,
+            city: formData.city,
+            postal_code: formData.postalCode,
+            country: formData.country,
+            phone: formData.phone,
+          },
+          notes: `Pagamento: ${paymentMethod.toUpperCase()}`,
+        });
 
-      // Create order items
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
+     if (orderError) throw orderError;
+
+     // Create order items
+     const orderItems = items.map((item) => ({
+       order_id: orderId,
         product_id: item.product_id,
         product_name: item.product?.name || "Produto",
         product_image: item.product?.images?.[0] || null,
