@@ -1,19 +1,70 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Crown, Package, Tag, ShoppingCart, LogOut, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import AnimatedBackground from "@/components/AnimatedBackground";
+
+interface AdminStats {
+  activeProducts: number;
+  pendingOrders: number;
+  monthlyRevenue: number;
+}
 
 const AdminPage = () => {
   const { user, isAdmin, isLoading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [stats, setStats] = useState<AdminStats>({
+    activeProducts: 0,
+    pendingOrders: 0,
+    monthlyRevenue: 0,
+  });
 
   useEffect(() => {
     if (!isLoading && (!user || !isAdmin)) {
       navigate("/");
     }
   }, [user, isAdmin, isLoading, navigate]);
+
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const fetchStats = async () => {
+      // Fetch active products count
+      const { count: productsCount } = await supabase
+        .from("products")
+        .select("*", { count: "exact", head: true })
+        .eq("is_active", true);
+
+      // Fetch pending orders count
+      const { count: pendingCount } = await supabase
+        .from("orders")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "pending");
+
+      // Fetch this month's revenue
+      const startOfMonth = new Date();
+      startOfMonth.setDate(1);
+      startOfMonth.setHours(0, 0, 0, 0);
+
+      const { data: revenueData } = await supabase
+        .from("orders")
+        .select("total")
+        .gte("created_at", startOfMonth.toISOString())
+        .neq("status", "cancelled");
+
+      const monthlyRevenue = revenueData?.reduce((sum, order) => sum + Number(order.total), 0) || 0;
+
+      setStats({
+        activeProducts: productsCount || 0,
+        pendingOrders: pendingCount || 0,
+        monthlyRevenue,
+      });
+    };
+
+    fetchStats();
+  }, [isAdmin]);
 
   if (isLoading) {
     return (
@@ -105,15 +156,15 @@ const AdminPage = () => {
             <div className="grid sm:grid-cols-3 gap-4 mt-12">
               <div className="bg-card border border-border rounded-xl p-6">
                 <p className="text-muted-foreground text-sm">Produtos Ativos</p>
-                <p className="text-3xl font-bold text-foreground mt-1">6</p>
+                <p className="text-3xl font-bold text-foreground mt-1">{stats.activeProducts}</p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6">
                 <p className="text-muted-foreground text-sm">Encomendas Pendentes</p>
-                <p className="text-3xl font-bold text-foreground mt-1">0</p>
+                <p className="text-3xl font-bold text-foreground mt-1">{stats.pendingOrders}</p>
               </div>
               <div className="bg-card border border-border rounded-xl p-6">
                 <p className="text-muted-foreground text-sm">Receita Este Mês</p>
-                <p className="text-3xl font-bold text-foreground mt-1">€0</p>
+                <p className="text-3xl font-bold text-foreground mt-1">€{stats.monthlyRevenue.toFixed(2)}</p>
               </div>
             </div>
           </div>
