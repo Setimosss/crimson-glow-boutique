@@ -142,9 +142,9 @@ const ProductCard = ({ product, index, isFeatured }: { product: Product; index: 
               <div className="absolute top-3 left-3 z-10">
                 <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full backdrop-blur-sm ${
                   product.tag === 'Best Seller' 
-                    ? 'bg-amber-500/80 text-white' 
+                    ? 'bg-amber-500/80 text-primary-foreground' 
                     : product.tag === 'Promoção'
-                    ? 'bg-green-500/80 text-white'
+                    ? 'bg-green-500/80 text-primary-foreground'
                     : 'bg-primary/80 text-primary-foreground'
                 }`}>
                   {product.tag}
