@@ -12,9 +12,13 @@ const ProductsSection = () => {
   const { data: categories } = useCategories();
   const [activeCategory, setActiveCategory] = useState<string>("all");
 
+  // Only show the two featured sneakers
+  const featuredSlugs = ["air-force-1-black", "off-white-ooo-black"];
+  const featuredProducts = products?.filter(p => featuredSlugs.includes(p.slug));
+  
   const filteredProducts = activeCategory === "all" 
-    ? products 
-    : products?.filter(p => p.category_id === activeCategory);
+    ? featuredProducts 
+    : featuredProducts?.filter(p => p.category_id === activeCategory);
 
   return (
     <section id="collection" className="py-24 relative">
