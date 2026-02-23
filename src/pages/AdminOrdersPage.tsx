@@ -43,10 +43,7 @@ const AdminOrdersPage = () => {
     enabled: isAdmin,
   });
 
-  if (!isAdmin) {
-    navigate("/admin");
-    return null;
-  }
+  // Auth guard handled by ProtectedAdminRoute
 
   const updateStatus = async (orderId: string, status: OrderStatus) => {
     const { error } = await supabase

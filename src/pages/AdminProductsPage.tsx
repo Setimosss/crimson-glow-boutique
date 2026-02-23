@@ -33,10 +33,7 @@ const AdminProductsPage = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(null);
 
-  if (!isAdmin) {
-    navigate("/admin");
-    return null;
-  }
+  // Auth guard handled by ProtectedAdminRoute
 
   const filteredProducts = products?.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase())

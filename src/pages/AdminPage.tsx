@@ -21,11 +21,7 @@ const AdminPage = () => {
     monthlyRevenue: 0,
   });
 
-  useEffect(() => {
-    if (!isLoading && (!user || !isAdmin)) {
-      navigate("/");
-    }
-  }, [user, isAdmin, isLoading, navigate]);
+  // Auth guard handled by ProtectedAdminRoute
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -66,17 +62,7 @@ const AdminPage = () => {
     fetchStats();
   }, [isAdmin]);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return null;
-  }
+  // Loading/auth handled by ProtectedAdminRoute
 
   const handleSignOut = async () => {
     await signOut();
