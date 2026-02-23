@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
-import { Smartphone, Loader2, CheckCircle } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Smartphone, Loader2, CheckCircle, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
 
 interface MbWayPaymentProps {
   phone: string;
@@ -13,25 +14,48 @@ interface MbWayPaymentProps {
 
 const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPaymentProps) => {
   const [mbwayPhone, setMbwayPhone] = useState(phone);
-  const [step, setStep] = useState<"phone" | "waiting" | "confirmed">("phone");
-  const [countdown, setCountdown] = useState(10);
+  const [step, setStep] = useState<"phone" | "waiting" | "confirmed" | "error">("phone");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
 
+  // Poll for payment status
   useEffect(() => {
-    if (step !== "waiting") return;
+    if (step !== "waiting" || !paymentIntentId) return;
 
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
+    const interval = setInterval(async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke("check-payment-status", {
+          body: { paymentIntentId },
+        });
+
+        if (error) throw error;
+
+        if (data.status === "succeeded") {
+          clearInterval(interval);
           setStep("confirmed");
-          return 0;
+        } else if (data.status === "canceled" || data.status === "requires_payment_method") {
+          clearInterval(interval);
+          setErrorMessage("Pagamento cancelado ou expirado. Tenta novamente.");
+          setStep("error");
         }
-        return prev - 1;
-      });
-    }, 1000);
+      } catch (e) {
+        console.error("Poll error:", e);
+      }
+    }, 3000);
 
-    return () => clearInterval(timer);
-  }, [step]);
+    // Timeout after 5 minutes
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      setErrorMessage("Tempo de espera esgotado. Tenta novamente.");
+      setStep("error");
+    }, 300000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [step, paymentIntentId]);
 
   useEffect(() => {
     if (step === "confirmed") {
@@ -40,10 +64,29 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
     }
   }, [step, onPaymentConfirmed]);
 
-  const handleSendRequest = () => {
+  const handleSendRequest = useCallback(async () => {
     if (!mbwayPhone || mbwayPhone.length < 9) return;
-    setStep("waiting");
-  };
+    setIsCreating(true);
+    setErrorMessage("");
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-mbway-payment", {
+        body: { amount: total, phone: mbwayPhone },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      setPaymentIntentId(data.id);
+      setStep("waiting");
+    } catch (e: any) {
+      console.error("Payment error:", e);
+      setErrorMessage(e.message || "Erro ao processar pagamento. Tenta novamente.");
+      setStep("error");
+    } finally {
+      setIsCreating(false);
+    }
+  }, [mbwayPhone, total]);
 
   if (step === "confirmed") {
     return (
@@ -51,6 +94,20 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
         <CheckCircle className="w-14 h-14 text-green-500 mx-auto mb-3" />
         <h3 className="text-lg font-bold text-foreground">Pagamento Confirmado!</h3>
         <p className="text-sm text-muted-foreground mt-1">A finalizar a encomenda...</p>
+      </div>
+    );
+  }
+
+  if (step === "error") {
+    return (
+      <div className="text-center py-8">
+        <AlertCircle className="w-14 h-14 text-destructive mx-auto mb-3" />
+        <h3 className="text-lg font-bold text-foreground">Erro no Pagamento</h3>
+        <p className="text-sm text-muted-foreground mt-1 mb-4">{errorMessage}</p>
+        <div className="flex gap-3 justify-center">
+          <Button variant="outline" onClick={onCancel}>Voltar</Button>
+          <Button onClick={() => setStep("phone")} className="neon-button">Tentar Novamente</Button>
+        </div>
       </div>
     );
   }
@@ -66,11 +123,11 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
           Confirma o pagamento de <span className="text-primary font-semibold">€{total.toFixed(2)}</span> na app MB Way no teu telemóvel
         </p>
         <p className="text-xs text-muted-foreground">
-          Número: <span className="font-medium text-foreground">{mbwayPhone}</span>
+          Número: <span className="font-medium text-foreground">+351 {mbwayPhone}</span>
         </p>
         <div className="mt-6">
           <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
-          <p className="text-xs text-muted-foreground mt-2">A simular confirmação em {countdown}s...</p>
+          <p className="text-xs text-muted-foreground mt-2">A aguardar confirmação na app MB Way...</p>
         </div>
         <Button variant="ghost" size="sm" onClick={onCancel} className="mt-4 text-muted-foreground">
           Cancelar
@@ -109,6 +166,10 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
         <p className="text-2xl font-bold text-primary">€{total.toFixed(2)}</p>
       </div>
 
+      {errorMessage && (
+        <p className="text-sm text-destructive text-center">{errorMessage}</p>
+      )}
+
       <div className="flex gap-3">
         <Button variant="outline" onClick={onCancel} className="flex-1">
           Voltar
@@ -116,9 +177,16 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
         <Button 
           onClick={handleSendRequest} 
           className="flex-1 neon-button"
-          disabled={!mbwayPhone || mbwayPhone.length < 9}
+          disabled={!mbwayPhone || mbwayPhone.length < 9 || isCreating}
         >
-          Enviar Pedido
+          {isCreating ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              A processar...
+            </>
+          ) : (
+            "Enviar Pedido"
+          )}
         </Button>
       </div>
     </div>
