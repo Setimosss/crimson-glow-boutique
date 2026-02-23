@@ -32,6 +32,24 @@ serve(async (req) => {
       );
     }
 
+    // Validate phone number: must be 9 digits starting with valid PT mobile prefix
+    const phoneStr = String(phone).replace(/\s/g, "");
+    const phoneRegex = /^(91|92|93|96)\d{7}$/;
+    if (!phoneRegex.test(phoneStr)) {
+      return new Response(
+        JSON.stringify({ error: "Número de telemóvel inválido. Deve ter 9 dígitos e começar por 91, 92, 93 ou 96." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Validate amount: must be positive and reasonable
+    if (typeof amount !== "number" || amount <= 0 || amount > 999999) {
+      return new Response(
+        JSON.stringify({ error: "Valor inválido." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Create PaymentIntent with mb_way payment method type
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents
@@ -40,7 +58,7 @@ serve(async (req) => {
       payment_method_data: {
         type: "mb_way",
         billing_details: {
-          phone: `+351${phone}`,
+          phone: `+351${phoneStr}`,
         },
       },
       confirm: true,
