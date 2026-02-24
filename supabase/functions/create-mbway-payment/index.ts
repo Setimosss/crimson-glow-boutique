@@ -7,10 +7,15 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-// Simple in-memory rate limiter (per IP, 5 requests per minute)
+// In-memory rate limiter (per IP, 5 requests per minute)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 5;
 const RATE_WINDOW_MS = 60_000;
+
+// In-memory payment token store (paymentIntentId -> token)
+// Tokens are used to verify ownership when checking payment status
+const paymentTokens = new Map<string, { token: string; createdAt: number }>();
+const TOKEN_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
@@ -22,6 +27,25 @@ function isRateLimited(ip: string): boolean {
   entry.count++;
   return entry.count > RATE_LIMIT;
 }
+
+function generateToken(): string {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+// Cleanup expired tokens periodically
+function cleanupTokens() {
+  const now = Date.now();
+  for (const [key, val] of paymentTokens) {
+    if (now - val.createdAt > TOKEN_TTL_MS) {
+      paymentTokens.delete(key);
+    }
+  }
+}
+
+// Export for use by check-payment-status (shared via globalThis)
+(globalThis as any).__paymentTokens = paymentTokens;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -88,16 +112,21 @@ serve(async (req) => {
       confirm: true,
     });
 
+    // Generate a session token for this payment
+    const sessionToken = generateToken();
+    cleanupTokens();
+    paymentTokens.set(paymentIntent.id, { token: sessionToken, createdAt: Date.now() });
+
     return new Response(
       JSON.stringify({
         clientSecret: paymentIntent.client_secret,
         status: paymentIntent.status,
         id: paymentIntent.id,
+        sessionToken,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    // Only log generic info server-side
     console.error("Payment creation failed");
     const message = error instanceof Error ? error.message : "Erro interno";
     return new Response(
