@@ -17,16 +17,17 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
   const [step, setStep] = useState<"phone" | "waiting" | "confirmed" | "error">("phone");
   const [errorMessage, setErrorMessage] = useState("");
   const [paymentIntentId, setPaymentIntentId] = useState<string | null>(null);
+  const [sessionToken, setSessionToken] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
 
   // Poll for payment status
   useEffect(() => {
-    if (step !== "waiting" || !paymentIntentId) return;
+    if (step !== "waiting" || !paymentIntentId || !sessionToken) return;
 
     const interval = setInterval(async () => {
       try {
         const { data, error } = await supabase.functions.invoke("check-payment-status", {
-          body: { paymentIntentId },
+          body: { paymentIntentId, sessionToken },
         });
 
         if (error) throw error;
@@ -55,7 +56,7 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
       clearInterval(interval);
       clearTimeout(timeout);
     };
-  }, [step, paymentIntentId]);
+  }, [step, paymentIntentId, sessionToken]);
 
   useEffect(() => {
     if (step === "confirmed") {
@@ -78,6 +79,7 @@ const MbWayPayment = ({ phone, total, onPaymentConfirmed, onCancel }: MbWayPayme
       if (data.error) throw new Error(data.error);
 
       setPaymentIntentId(data.id);
+      setSessionToken(data.sessionToken);
       setStep("waiting");
     } catch (e: any) {
       console.error("Payment error:", e);
