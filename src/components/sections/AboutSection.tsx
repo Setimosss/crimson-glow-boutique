@@ -1,4 +1,23 @@
 import { motion } from "framer-motion";
+import { Sparkles, Shield, Heart } from "lucide-react";
+
+const values = [
+  {
+    icon: Sparkles,
+    title: "Estilo Autêntico",
+    desc: "Peças inspiradas nas tendências urbanas e na atitude de quem vive a moda de forma autêntica.",
+  },
+  {
+    icon: Shield,
+    title: "Qualidade & Conforto",
+    desc: "Valorizamos bons materiais, atenção aos detalhes e uma experiência de compra simples e confiável.",
+  },
+  {
+    icon: Heart,
+    title: "Atitude & Identidade",
+    desc: "Mais do que roupas, oferecemos atitude e identidade. Cada peça é pensada para te fazer sentir confiante.",
+  },
+];
 
 const AboutSection = () => {
   return (
@@ -16,7 +35,7 @@ const AboutSection = () => {
             <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
               <img 
                 src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&h=1000&fit=crop"
-                alt="Fashion model"
+                alt="Fashion model wearing Tread Trendz streetwear"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
@@ -61,47 +80,48 @@ const AboutSection = () => {
                 <br />
                 <span className="text-primary neon-text">Encontra a Alma</span>
               </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed mb-4">
+                Na Tread Trendz, acreditamos que o estilo é uma forma de expressão. 
+                Criamos peças modernas e versáteis, pensadas para quem quer destacar a 
+                sua personalidade no dia a dia sem abrir mão do conforto e da qualidade. 
+                Cada coleção nasce da inspiração nas tendências urbanas e na atitude de 
+                quem vive a moda de forma autêntica.
+              </p>
               <p className="text-muted-foreground text-lg leading-relaxed">
-                Nascemos da paixão por criar peças que transcendem o comum. 
-                Cada item da nossa coleção é cuidadosamente desenhado para 
-                quem recusa viver na mediocridade.
+                O nosso compromisso vai além do visual: valorizamos bons materiais, 
+                atenção aos detalhes e uma experiência de compra simples e confiável. 
+                Queremos que cada cliente se sinta confiante ao vestir Tread Trendz — 
+                porque mais do que roupas, oferecemos atitude e identidade.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="space-y-2"
-              >
-                <div className="w-12 h-1 bg-primary rounded-full" />
-                <h3 className="text-xl font-semibold">Design Único</h3>
-                <p className="text-muted-foreground text-sm">
-                  Peças exclusivas que não encontras em mais nenhum lugar.
-                </p>
-              </motion.div>
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="space-y-2"
-              >
-                <div className="w-12 h-1 bg-primary rounded-full" />
-                <h3 className="text-xl font-semibold">Qualidade Premium</h3>
-                <p className="text-muted-foreground text-sm">
-                  Materiais selecionados para durabilidade e conforto.
-                </p>
-              </motion.div>
+            {/* Values Grid */}
+            <div className="grid gap-4">
+              {values.map((item, i) => (
+                <motion.div
+                  key={item.title}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.3 + i * 0.1 }}
+                  className="flex items-start gap-4 p-4 rounded-xl border border-border/30 hover:border-primary/30 transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                    <item.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground">{item.title}</h3>
+                    <p className="text-muted-foreground text-sm mt-1">{item.desc}</p>
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
             <motion.div 
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
               className="flex items-center gap-8 pt-4"
             >
               <div className="flex -space-x-3">

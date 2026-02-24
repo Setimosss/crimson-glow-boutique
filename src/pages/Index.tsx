@@ -7,23 +7,25 @@
  import AboutSection from "@/components/sections/AboutSection";
  import TestimonialsSection from "@/components/sections/TestimonialsSection";
  import InstagramSection from "@/components/sections/InstagramSection";
- import NewsletterSection from "@/components/sections/NewsletterSection";
- 
- const Index = () => {
-   return (
-     <div className="min-h-screen relative">
-       <AnimatedBackground />
-       <div className="relative z-10">
-         <Header />
-         <main>
-           <HeroSection />
-           <FeaturesSection />
-           <ProductsSection />
-           <AboutSection />
-           <TestimonialsSection />
-           <InstagramSection />
-           <NewsletterSection />
-         </main>
+import NewsletterSection from "@/components/sections/NewsletterSection";
+import BrandBannerSection from "@/components/sections/BrandBannerSection";
+
+const Index = () => {
+  return (
+    <div className="min-h-screen relative">
+      <AnimatedBackground />
+      <div className="relative z-10">
+        <Header />
+        <main>
+          <HeroSection />
+          <FeaturesSection />
+          <ProductsSection />
+          <BrandBannerSection />
+          <AboutSection />
+          <TestimonialsSection />
+          <InstagramSection />
+          <NewsletterSection />
+        </main>
          <Footer />
        </div>
      </div>

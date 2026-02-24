@@ -7,12 +7,37 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Simple in-memory rate limiter (per IP, 5 requests per minute)
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MS = 60_000;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+  entry.count++;
+  return entry.count > RATE_LIMIT;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    // Rate limiting
+    const clientIp = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+    if (isRateLimited(clientIp)) {
+      return new Response(
+        JSON.stringify({ error: "Demasiados pedidos. Tenta novamente em breve." }),
+        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
       throw new Error("STRIPE_SECRET_KEY not configured");
@@ -32,7 +57,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate phone number: must be 9 digits starting with valid PT mobile prefix
+    // Validate phone number
     const phoneStr = String(phone).replace(/\s/g, "");
     const phoneRegex = /^(91|92|93|96)\d{7}$/;
     if (!phoneRegex.test(phoneStr)) {
@@ -42,7 +67,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate amount: must be positive and reasonable
+    // Validate amount
     if (typeof amount !== "number" || amount <= 0 || amount > 999999) {
       return new Response(
         JSON.stringify({ error: "Valor inválido." }),
@@ -50,9 +75,8 @@ serve(async (req) => {
       );
     }
 
-    // Create PaymentIntent with mb_way payment method type
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
+      amount: Math.round(amount * 100),
       currency: "eur",
       payment_method_types: ["mb_way"],
       payment_method_data: {
@@ -73,8 +97,9 @@ serve(async (req) => {
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Stripe error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
+    // Only log generic info server-side
+    console.error("Payment creation failed");
+    const message = error instanceof Error ? error.message : "Erro interno";
     return new Response(
       JSON.stringify({ error: message }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
