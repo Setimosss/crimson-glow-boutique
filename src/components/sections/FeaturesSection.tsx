@@ -26,23 +26,25 @@ const features = [
 
 const FeaturesSection = () => {
   return (
-    <section className="py-16 border-y border-primary/10 bg-background/50 backdrop-blur-sm">
+    <section className="py-12 border-y border-primary/10 bg-card/30 backdrop-blur-sm">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
-            <motion.div 
-              key={index} 
-              initial={{ opacity: 0, y: 20 }}
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 15 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="text-center group"
+              transition={{ duration: 0.4, delay: index * 0.08 }}
+              className="flex items-center gap-4 group"
             >
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/5 border border-primary/20 mb-4 group-hover:border-primary/40 group-hover:bg-primary/10 transition-all duration-500">
-                <feature.icon className="h-7 w-7 text-primary" />
+              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-center group-hover:border-primary/30 group-hover:bg-primary/10 transition-all duration-500">
+                <feature.icon className="h-5 w-5 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">{feature.title}</h3>
-              <p className="text-muted-foreground text-sm">{feature.description}</p>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">{feature.title}</h3>
+                <p className="text-muted-foreground text-xs mt-0.5">{feature.description}</p>
+              </div>
             </motion.div>
           ))}
         </div>

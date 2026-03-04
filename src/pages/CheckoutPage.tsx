@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, CreditCard, Smartphone, Loader2, CheckCircle } from "lucide-react";
+import { ArrowLeft, CreditCard, Smartphone, Loader2, CheckCircle, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/layout/Header";
 import AnimatedBackground from "@/components/AnimatedBackground";
 import MbWayPayment from "@/components/checkout/MbWayPayment";
+import RevolutPayment from "@/components/checkout/RevolutPayment";
 
 const CheckoutPage = () => {
   const { items, total, clearCart } = useCart();
@@ -188,6 +189,12 @@ const CheckoutPage = () => {
                       onPaymentConfirmed={handlePaymentConfirmed}
                       onCancel={() => setShowPayment(false)}
                     />
+                  ) : paymentMethod === "revolut" ? (
+                    <RevolutPayment
+                      total={finalTotal}
+                      onPaymentConfirmed={handlePaymentConfirmed}
+                      onCancel={() => setShowPayment(false)}
+                    />
                   ) : (
                     <div className="space-y-4">
                       <div className="flex items-center gap-3 mb-4">
@@ -294,10 +301,20 @@ const CheckoutPage = () => {
                             </div>
                           </Label>
                         </div>
+                        <div className="flex items-center space-x-3 bg-input border border-border rounded-lg p-4 cursor-pointer hover:border-primary/50">
+                          <RadioGroupItem value="revolut" id="revolut" />
+                          <Label htmlFor="revolut" className="flex items-center gap-2 cursor-pointer flex-1">
+                            <Wallet className="w-5 h-5 text-primary" />
+                            <div>
+                              <p className="font-medium">Revolut</p>
+                              <p className="text-xs text-muted-foreground">Transferência via Revolut</p>
+                            </div>
+                          </Label>
+                        </div>
                       </RadioGroup>
                     </div>
 
-                    <Button type="submit" className="w-full neon-button py-6" disabled={items.length === 0}>
+                    <Button type="submit" className="w-full neon-button py-6 rounded-full" disabled={items.length === 0}>
                       Avançar para Pagamento — €{finalTotal.toFixed(2)}
                     </Button>
                   </form>
