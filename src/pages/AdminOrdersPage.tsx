@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Package, Clock, CheckCircle, Truck, XCircle } from "lucide-react";
+import { ArrowLeft, Package, Clock, CheckCircle, Truck, XCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,44 +26,77 @@ const AdminOrdersPage = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [trackingInputs, setTrackingInputs] = useState<Record<string, string>>({});
+  const [sendingTracking, setSendingTracking] = useState<Record<string, boolean>>({});
 
   const { data: orders, isLoading, refetch } = useQuery({
     queryKey: ["admin-orders"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select(`
-          *,
-          order_items (*)
-        `)
+        .select(`*, order_items (*)`)
         .order("created_at", { ascending: false });
-      
       if (error) throw error;
       return data;
     },
     enabled: isAdmin,
   });
 
-  // Auth guard handled by ProtectedAdminRoute
-
   const updateStatus = async (orderId: string, status: OrderStatus) => {
-    const { error } = await supabase
-      .from("orders")
-      .update({ status })
-      .eq("id", orderId);
+    const order = orders?.find((o) => o.id === orderId);
+    const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
 
     if (error) {
-      toast({
-        title: "Erro",
-        description: "Não foi possível atualizar o estado",
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Atualizado",
-        description: `Estado alterado para ${statusConfig[status].label}`,
-      });
+      toast({ title: "Erro", description: "Não foi possível atualizar o estado", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Atualizado", description: `Estado alterado para ${statusConfig[status].label}` });
+    refetch();
+
+    // Send status update email
+    const customerEmail = order?.customer_email || (order?.shipping_address as any)?.email;
+    const customerName = (order?.shipping_address as any)?.full_name;
+    if (customerEmail && customerName) {
+      try {
+        await supabase.functions.invoke("send-order-email", {
+          body: { type: "status_update", orderId, customerEmail, customerName, status },
+        });
+      } catch (e) {
+        console.error("Email failed:", e);
+      }
+    }
+  };
+
+  const sendTrackingNumber = async (orderId: string) => {
+    const tracking = trackingInputs[orderId]?.trim();
+    if (!tracking) return;
+
+    setSendingTracking((p) => ({ ...p, [orderId]: true }));
+    const order = orders?.find((o) => o.id === orderId);
+
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ tracking_number: tracking, status: "shipped" as OrderStatus })
+        .eq("id", orderId);
+      if (error) throw error;
+
+      const customerEmail = order?.customer_email || (order?.shipping_address as any)?.email;
+      const customerName = (order?.shipping_address as any)?.full_name;
+      if (customerEmail && customerName) {
+        await supabase.functions.invoke("send-order-email", {
+          body: { type: "tracking", orderId, customerEmail, customerName, trackingNumber: tracking },
+        });
+      }
+
+      toast({ title: "Enviado!", description: "Código de rastreio enviado por email" });
+      setTrackingInputs((p) => ({ ...p, [orderId]: "" }));
       refetch();
+    } catch (e: any) {
+      toast({ title: "Erro", description: e.message, variant: "destructive" });
+    } finally {
+      setSendingTracking((p) => ({ ...p, [orderId]: false }));
     }
   };
 
@@ -70,7 +104,6 @@ const AdminOrdersPage = () => {
     <div className="min-h-screen relative">
       <AnimatedBackground />
       <div className="relative z-10">
-        {/* Header */}
         <header className="bg-background/90 backdrop-blur-md border-b border-border">
           <div className="container mx-auto px-4 py-4 flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={() => navigate("/admin")}>
@@ -80,7 +113,6 @@ const AdminOrdersPage = () => {
           </div>
         </header>
 
-        {/* Content */}
         <main className="container mx-auto px-4 py-8">
           {isLoading ? (
             <div className="space-y-4">
@@ -110,11 +142,7 @@ const AdminOrdersPage = () => {
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(order.created_at).toLocaleDateString("pt-PT", {
-                            day: "numeric",
-                            month: "long",
-                            year: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
+                            day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit",
                           })}
                         </p>
                       </div>
@@ -129,9 +157,7 @@ const AdminOrdersPage = () => {
                           </SelectTrigger>
                           <SelectContent>
                             {Object.entries(statusConfig).map(([key, val]) => (
-                              <SelectItem key={key} value={key}>
-                                {val.label}
-                              </SelectItem>
+                              <SelectItem key={key} value={key}>{val.label}</SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
@@ -144,6 +170,7 @@ const AdminOrdersPage = () => {
                         <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Cliente</p>
                         <p className="text-foreground">{shippingAddress?.full_name}</p>
                         <p className="text-muted-foreground">{shippingAddress?.phone}</p>
+                        <p className="text-muted-foreground">{order.customer_email || shippingAddress?.email}</p>
                       </div>
                       <div>
                         <p className="text-muted-foreground text-xs uppercase tracking-wider mb-1">Morada</p>
@@ -152,6 +179,37 @@ const AdminOrdersPage = () => {
                           {shippingAddress?.postal_code}, {shippingAddress?.city}
                         </p>
                       </div>
+                    </div>
+
+                    {/* Tracking */}
+                    <div className="border-t border-border pt-4 mb-4">
+                      <p className="text-muted-foreground text-xs uppercase tracking-wider mb-2">Código de Rastreio</p>
+                      {(order as any).tracking_number ? (
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-primary border-primary/30 font-mono text-sm px-3 py-1">
+                            {(order as any).tracking_number}
+                          </Badge>
+                          <span className="text-xs text-green-500">✓ Enviado ao cliente</span>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="Ex: CTT123456789PT"
+                            value={trackingInputs[order.id] || ""}
+                            onChange={(e) => setTrackingInputs((p) => ({ ...p, [order.id]: e.target.value }))}
+                            className="bg-input border-border flex-1 font-mono"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => sendTrackingNumber(order.id)}
+                            disabled={!trackingInputs[order.id]?.trim() || sendingTracking[order.id]}
+                            className="gap-1"
+                          >
+                            <Send className="w-3 h-3" />
+                            {sendingTracking[order.id] ? "A enviar..." : "Enviar"}
+                          </Button>
+                        </div>
+                      )}
                     </div>
 
                     {/* Items */}
@@ -163,11 +221,7 @@ const AdminOrdersPage = () => {
                         {order.order_items?.map((item: any) => (
                           <div key={item.id} className="flex items-center gap-3">
                             {item.product_image && (
-                              <img
-                                src={item.product_image}
-                                alt={item.product_name}
-                                className="w-10 h-12 object-cover rounded"
-                              />
+                              <img src={item.product_image} alt={item.product_name} className="w-10 h-12 object-cover rounded" />
                             )}
                             <div className="flex-1">
                               <p className="text-sm text-foreground">{item.product_name}</p>
@@ -186,15 +240,9 @@ const AdminOrdersPage = () => {
                     {/* Total */}
                     <div className="flex justify-end pt-4 border-t border-border mt-4">
                       <div className="text-right">
-                        <p className="text-sm text-muted-foreground">
-                          Subtotal: €{Number(order.subtotal).toFixed(2)}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Portes: €{Number(order.shipping).toFixed(2)}
-                        </p>
-                        <p className="text-lg font-bold text-primary">
-                          Total: €{Number(order.total).toFixed(2)}
-                        </p>
+                        <p className="text-sm text-muted-foreground">Subtotal: €{Number(order.subtotal).toFixed(2)}</p>
+                        <p className="text-sm text-muted-foreground">Portes: €{Number(order.shipping).toFixed(2)}</p>
+                        <p className="text-lg font-bold text-primary">Total: €{Number(order.total).toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
