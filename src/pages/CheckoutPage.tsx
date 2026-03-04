@@ -67,6 +67,7 @@ const CheckoutPage = () => {
           subtotal: total,
           shipping: shippingCost,
           total: finalTotal,
+          customer_email: formData.email,
           shipping_address: {
             full_name: formData.fullName,
             email: formData.email,
@@ -97,6 +98,28 @@ const CheckoutPage = () => {
         .insert(orderItems);
 
       if (itemsError) throw itemsError;
+
+      // Send confirmation email
+      try {
+        await supabase.functions.invoke("send-order-email", {
+          body: {
+            type: "confirmation",
+            orderId,
+            customerEmail: formData.email,
+            customerName: formData.fullName,
+            orderTotal: finalTotal,
+            items: items.map((item) => ({
+              name: item.product?.name || "Produto",
+              quantity: item.quantity,
+              price: item.product?.price || 0,
+              size: item.size,
+              color: item.color,
+            })),
+          },
+        });
+      } catch (emailError) {
+        console.error("Email sending failed:", emailError);
+      }
 
       await clearCart();
       setOrderComplete(true);

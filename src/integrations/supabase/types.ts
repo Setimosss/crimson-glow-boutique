@@ -140,6 +140,7 @@ export type Database = {
         Row: {
           billing_address: Json | null
           created_at: string
+          customer_email: string | null
           id: string
           notes: string | null
           shipping: number
@@ -147,12 +148,14 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total: number
+          tracking_number: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
           billing_address?: Json | null
           created_at?: string
+          customer_email?: string | null
           id?: string
           notes?: string | null
           shipping?: number
@@ -160,12 +163,14 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           subtotal: number
           total: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
           billing_address?: Json | null
           created_at?: string
+          customer_email?: string | null
           id?: string
           notes?: string | null
           shipping?: number
@@ -173,6 +178,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["order_status"]
           subtotal?: number
           total?: number
+          tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
         }
