@@ -1,4 +1,4 @@
- import { useState } from "react";
+ import { useState, useMemo } from "react";
  import { useParams, Link, useNavigate } from "react-router-dom";
  import { ArrowLeft, Minus, Plus, ShoppingBag, Truck, Shield, RotateCcw, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,15 @@ const ProductPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
+  // Get the active images based on selected color
+  const activeImages = useMemo(() => {
+    if (selectedColor && selectedColor.images && selectedColor.images.length > 0) {
+      return selectedColor.images;
+    }
+    return product?.images || [];
+  }, [selectedColor, product?.images]);
+
+  // Loading state
   if (isLoading) {
     return (
       <div className="min-h-screen relative">
@@ -67,6 +76,11 @@ const ProductPage = () => {
 
   const relatedProducts = allProducts?.filter(p => p.id !== product.id).slice(0, 4) || [];
 
+  const handleColorSelect = (color: ProductColor) => {
+    setSelectedColor(color);
+    setSelectedImage(0); // Reset to first image of the new color
+  };
+
   return (
     <div className="min-h-screen relative">
       <AnimatedBackground />
@@ -99,7 +113,7 @@ const ProductPage = () => {
                 {/* Main Image */}
                 <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card border border-primary/10">
                   <img 
-                    src={product.images[selectedImage]} 
+                    src={activeImages[selectedImage] || product.images[0]} 
                     alt={product.name}
                     className="w-full h-full object-cover"
                   />
@@ -111,9 +125,9 @@ const ProductPage = () => {
                 </div>
 
                 {/* Thumbnails */}
-                {product.images.length > 1 && (
+                {activeImages.length > 1 && (
                   <div className="flex gap-3 overflow-x-auto pb-2">
-                    {product.images.map((img, index) => (
+                    {activeImages.map((img, index) => (
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
@@ -174,7 +188,7 @@ const ProductPage = () => {
                       {product.colors.map((color) => (
                         <button
                           key={color.name}
-                          onClick={() => setSelectedColor(color)}
+                          onClick={() => handleColorSelect(color)}
                           className={`w-10 h-10 rounded-full border-2 transition-all relative ${
                             selectedColor?.name === color.name 
                               ? 'border-primary ring-2 ring-primary/30 scale-110' 
@@ -281,7 +295,7 @@ const ProductPage = () => {
                 <div className="grid grid-cols-3 gap-4 pt-6 border-t border-primary/10">
                   <div className="text-center">
                     <Truck className="w-6 h-6 text-primary mx-auto mb-2" />
-                    <p className="text-xs text-muted-foreground">Envio Grátis<br />+50€</p>
+                    <p className="text-xs text-muted-foreground">Envio<br />Rápido</p>
                   </div>
                   <div className="text-center">
                     <RotateCcw className="w-6 h-6 text-primary mx-auto mb-2" />

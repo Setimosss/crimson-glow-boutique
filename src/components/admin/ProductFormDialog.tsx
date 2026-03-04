@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Product } from "@/types/database";
-import { Loader2, ImagePlus, X, Plus, Upload, Palette } from "lucide-react";
+import { Loader2, ImagePlus, X, Plus, Upload, Palette, ChevronDown, ChevronUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 interface ProductFormDialogProps {
@@ -41,6 +41,7 @@ const COLOR_PRESETS = [
 interface ColorItem {
   name: string;
   hex: string;
+  images: string[];
 }
 
 const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFormDialogProps) => {
@@ -51,7 +52,10 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
   const [newDetail, setNewDetail] = useState("");
   const [newColorName, setNewColorName] = useState("");
   const [newColorHex, setNewColorHex] = useState("#000000");
+  const [expandedColor, setExpandedColor] = useState<number | null>(null);
+  const [colorUploadingIndex, setColorUploadingIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const colorFileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -72,8 +76,11 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
   useEffect(() => {
     if (open) {
       if (product) {
-        const productColors = Array.isArray(product.colors) 
-          ? (product.colors as unknown as ColorItem[]) 
+        const productColors = Array.isArray(product.colors)
+          ? (product.colors as unknown as ColorItem[]).map(c => ({
+              ...c,
+              images: c.images || [],
+            }))
           : [];
         setFormData({
           name: product.name || "",
@@ -101,6 +108,7 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
       setNewDetail("");
       setNewColorName("");
       setNewColorHex("#000000");
+      setExpandedColor(null);
     }
   }, [product, open]);
 
@@ -113,39 +121,61 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
     setFormData({ ...formData, name, slug: product ? formData.slug : generateSlug(name) });
   };
 
-  // === IMAGE HANDLING ===
+  // === UPLOAD HELPER ===
+  const uploadFiles = async (files: FileList): Promise<string[]> => {
+    const urls: string[] = [];
+    for (const file of Array.from(files)) {
+      const ext = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
+      const { error } = await supabase.storage
+        .from('product-images')
+        .upload(fileName, file, { contentType: file.type });
+      if (error) throw error;
+      const { data: urlData } = supabase.storage
+        .from('product-images')
+        .getPublicUrl(fileName);
+      urls.push(urlData.publicUrl);
+    }
+    return urls;
+  };
+
+  // === GENERAL IMAGE HANDLING ===
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setIsUploading(true);
-    const uploadedUrls: string[] = [];
-
     try {
-      for (const file of Array.from(files)) {
-        const ext = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${ext}`;
-        
-        const { error } = await supabase.storage
-          .from('product-images')
-          .upload(fileName, file, { contentType: file.type });
-
-        if (error) throw error;
-
-        const { data: urlData } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(fileName);
-
-        uploadedUrls.push(urlData.publicUrl);
-      }
-
-      setFormData(prev => ({ ...prev, images: [...prev.images, ...uploadedUrls] }));
-      toast({ title: "Upload concluído", description: `${uploadedUrls.length} imagem(ns) carregada(s)` });
+      const urls = await uploadFiles(files);
+      setFormData(prev => ({ ...prev, images: [...prev.images, ...urls] }));
+      toast({ title: "Upload concluído", description: `${urls.length} imagem(ns) carregada(s)` });
     } catch (error: any) {
       toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  // === COLOR IMAGE UPLOAD ===
+  const handleColorFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0 || colorUploadingIndex === null) return;
+    const idx = colorUploadingIndex;
+    setIsUploading(true);
+    try {
+      const urls = await uploadFiles(files);
+      setFormData(prev => {
+        const newColors = [...prev.colors];
+        newColors[idx] = { ...newColors[idx], images: [...newColors[idx].images, ...urls] };
+        return { ...prev, colors: newColors };
+      });
+      toast({ title: "Upload concluído", description: `${urls.length} imagem(ns) adicionada(s) à cor` });
+    } catch (error: any) {
+      toast({ title: "Erro no upload", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+      setColorUploadingIndex(null);
+      if (colorFileInputRef.current) colorFileInputRef.current.value = "";
     }
   };
 
@@ -162,19 +192,21 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
   };
 
   // === COLORS ===
-  const toggleColorPreset = (color: ColorItem) => {
-    const exists = formData.colors.some(c => c.hex === color.hex);
-    if (exists) {
-      setFormData({ ...formData, colors: formData.colors.filter(c => c.hex !== color.hex) });
-    } else {
-      setFormData({ ...formData, colors: [...formData.colors, color] });
+  const addColorPreset = (preset: { name: string; hex: string }) => {
+    const exists = formData.colors.some(c => c.hex === preset.hex);
+    if (!exists) {
+      const newColors = [...formData.colors, { ...preset, images: [] }];
+      setFormData({ ...formData, colors: newColors });
+      setExpandedColor(newColors.length - 1);
     }
   };
 
   const addCustomColor = () => {
     const name = newColorName.trim();
     if (name && newColorHex && !formData.colors.some(c => c.hex === newColorHex)) {
-      setFormData({ ...formData, colors: [...formData.colors, { name, hex: newColorHex }] });
+      const newColors = [...formData.colors, { name, hex: newColorHex, images: [] }];
+      setFormData({ ...formData, colors: newColors });
+      setExpandedColor(newColors.length - 1);
       setNewColorName("");
       setNewColorHex("#000000");
     }
@@ -182,6 +214,30 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
 
   const removeColor = (index: number) => {
     setFormData({ ...formData, colors: formData.colors.filter((_, i) => i !== index) });
+    if (expandedColor === index) setExpandedColor(null);
+  };
+
+  const removeColorImage = (colorIndex: number, imageIndex: number) => {
+    setFormData(prev => {
+      const newColors = [...prev.colors];
+      newColors[colorIndex] = {
+        ...newColors[colorIndex],
+        images: newColors[colorIndex].images.filter((_, i) => i !== imageIndex),
+      };
+      return { ...prev, colors: newColors };
+    });
+  };
+
+  const addColorImageUrl = (colorIndex: number, url: string) => {
+    if (!url.trim()) return;
+    setFormData(prev => {
+      const newColors = [...prev.colors];
+      newColors[colorIndex] = {
+        ...newColors[colorIndex],
+        images: [...newColors[colorIndex].images, url.trim()],
+      };
+      return { ...prev, colors: newColors };
+    });
   };
 
   // === SIZES ===
@@ -249,6 +305,10 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
         <DialogHeader>
           <DialogTitle className="text-xl">{product ? "Editar Produto" : "Novo Produto"}</DialogTitle>
         </DialogHeader>
+
+        {/* Hidden file inputs */}
+        <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
+        <input ref={colorFileInputRef} type="file" accept="image/*" multiple onChange={handleColorFileUpload} className="hidden" />
 
         <form onSubmit={handleSubmit} className="space-y-6 mt-2">
           {/* === BASIC INFO === */}
@@ -336,55 +396,115 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
             </div>
           </fieldset>
 
-          {/* === COLORS === */}
+          {/* === COLORS WITH IMAGES === */}
           <fieldset className="space-y-3">
             <legend className="text-xs uppercase tracking-widest text-muted-foreground font-medium mb-2 flex items-center gap-2">
-              <Palette className="w-3.5 h-3.5" /> Cores
+              <Palette className="w-3.5 h-3.5" /> Cores & Imagens por Cor
             </legend>
+            <p className="text-xs text-muted-foreground">Cada cor pode ter as suas próprias imagens. Quando o cliente selecionar uma cor, verá as imagens correspondentes.</p>
+
             {/* Color presets */}
             <div className="flex flex-wrap gap-2">
               {COLOR_PRESETS.map((color) => {
-                const isSelected = formData.colors.some(c => c.hex === color.hex);
+                const isAdded = formData.colors.some(c => c.hex === color.hex);
                 return (
                   <button
                     key={color.hex}
                     type="button"
-                    onClick={() => toggleColorPreset(color)}
+                    onClick={() => !isAdded && addColorPreset(color)}
                     className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border text-xs transition-all ${
-                      isSelected ? "border-primary bg-primary/10 text-foreground" : "border-border hover:border-primary/50 text-muted-foreground"
+                      isAdded ? "border-primary/30 bg-primary/5 text-muted-foreground opacity-50 cursor-default" : "border-border hover:border-primary/50 text-muted-foreground cursor-pointer"
                     }`}
                   >
                     <span className="w-4 h-4 rounded-full border border-border/50 shrink-0" style={{ backgroundColor: color.hex }} />
-                    {color.name}
+                    {color.name} {isAdded && "✓"}
                   </button>
                 );
               })}
             </div>
-            {/* Selected colors */}
+
+            {/* Added colors with expandable image sections */}
             {formData.colors.length > 0 && (
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="space-y-2 pt-2">
                 {formData.colors.map((color, i) => (
-                  <div key={i} className="flex items-center gap-1.5 bg-muted/50 rounded-full pl-1.5 pr-2 py-1 text-xs group">
-                    <span className="w-4 h-4 rounded-full border border-border/50" style={{ backgroundColor: color.hex }} />
-                    <span className="text-foreground">{color.name}</span>
-                    <button type="button" onClick={() => removeColor(i)} className="ml-1 text-muted-foreground hover:text-destructive">
-                      <X className="w-3 h-3" />
-                    </button>
+                  <div key={i} className="border border-border rounded-lg overflow-hidden">
+                    {/* Color header */}
+                    <div
+                      className="flex items-center gap-3 px-3 py-2.5 bg-muted/30 cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => setExpandedColor(expandedColor === i ? null : i)}
+                    >
+                      <span className="w-5 h-5 rounded-full border border-border/50 shrink-0" style={{ backgroundColor: color.hex }} />
+                      <span className="text-sm font-medium text-foreground flex-1">{color.name}</span>
+                      <span className="text-xs text-muted-foreground">{color.images.length} imagem(ns)</span>
+                      <button type="button" onClick={(e) => { e.stopPropagation(); removeColor(i); }} className="text-muted-foreground hover:text-destructive">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                      {expandedColor === i ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    </div>
+
+                    {/* Expanded: images for this color */}
+                    {expandedColor === i && (
+                      <div className="p-3 space-y-3 border-t border-border/50">
+                        {/* Image previews */}
+                        {color.images.length > 0 && (
+                          <div className="flex gap-2 overflow-x-auto pb-1">
+                            {color.images.map((url, imgIdx) => (
+                              <div key={imgIdx} className="relative group shrink-0">
+                                <div className="w-16 h-16 rounded-md overflow-hidden border border-border bg-muted">
+                                  <img src={url} alt={`${color.name} ${imgIdx + 1}`} className="w-full h-full object-cover" />
+                                </div>
+                                <button type="button" onClick={() => removeColorImage(i, imgIdx)} className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <X className="w-2.5 h-2.5" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {/* Upload + URL for this color */}
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                            disabled={isUploading}
+                            onClick={() => {
+                              setColorUploadingIndex(i);
+                              colorFileInputRef.current?.click();
+                            }}
+                          >
+                            {isUploading && colorUploadingIndex === i ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <Upload className="w-3 h-3 mr-1" />}
+                            Carregar
+                          </Button>
+                          <Input
+                            placeholder="URL da imagem..."
+                            className="bg-input border-border flex-1 h-8 text-xs"
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const val = (e.target as HTMLInputElement).value;
+                                addColorImageUrl(i, val);
+                                (e.target as HTMLInputElement).value = "";
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
             )}
+
             {/* Custom color */}
-            <div className="flex gap-2 items-end">
+            <div className="flex gap-2 items-end pt-1">
               <div className="space-y-1 flex-1">
-                <Label className="text-xs text-muted-foreground">Nome da cor</Label>
+                <Label className="text-xs text-muted-foreground">Cor personalizada</Label>
                 <Input value={newColorName} onChange={(e) => setNewColorName(e.target.value)} className="bg-input border-border" placeholder="Ex: Azul Marinho" />
               </div>
               <div className="space-y-1">
                 <Label className="text-xs text-muted-foreground">Cor</Label>
-                <div className="flex items-center gap-2">
-                  <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent" />
-                </div>
+                <input type="color" value={newColorHex} onChange={(e) => setNewColorHex(e.target.value)} className="w-10 h-10 rounded-lg border border-border cursor-pointer bg-transparent" />
               </div>
               <Button type="button" variant="outline" size="icon" onClick={addCustomColor} className="shrink-0">
                 <Plus className="w-4 h-4" />
@@ -392,10 +512,10 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
             </div>
           </fieldset>
 
-          {/* === IMAGES === */}
+          {/* === GENERAL IMAGES (fallback) === */}
           <fieldset className="space-y-3">
-            <legend className="text-xs uppercase tracking-widest text-muted-foreground font-medium mb-2">Imagens</legend>
-            {/* Image previews */}
+            <legend className="text-xs uppercase tracking-widest text-muted-foreground font-medium mb-2">Imagens Gerais</legend>
+            <p className="text-xs text-muted-foreground">Imagens exibidas quando nenhuma cor está selecionada, ou se a cor não tiver imagens próprias.</p>
             {formData.images.length > 0 && (
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {formData.images.map((url, i) => (
@@ -413,18 +533,15 @@ const ProductFormDialog = ({ open, onOpenChange, product, onSuccess }: ProductFo
                 ))}
               </div>
             )}
-            {/* Upload from device */}
             <div className="flex gap-2">
-              <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleFileUpload} className="hidden" />
               <Button type="button" variant="outline" className="flex-1" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                {isUploading ? (
+                {isUploading && colorUploadingIndex === null ? (
                   <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> A carregar...</>
                 ) : (
                   <><Upload className="w-4 h-4 mr-2" /> Carregar do Dispositivo</>
                 )}
               </Button>
             </div>
-            {/* Or add by URL */}
             <div className="flex gap-2">
               <Input value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} className="bg-input border-border flex-1" placeholder="Ou colar URL da imagem..." onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addImageUrl(); } }} />
               <Button type="button" variant="outline" size="icon" onClick={addImageUrl}>

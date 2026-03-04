@@ -10,6 +10,7 @@ export interface Category {
 export interface ProductColor {
   name: string;
   hex: string;
+  images: string[];
 }
 
 export interface Product {
