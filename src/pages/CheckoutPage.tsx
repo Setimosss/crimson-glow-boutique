@@ -32,7 +32,7 @@ const CheckoutPage = () => {
     country: "Portugal",
   });
 
-  const shippingCost = total >= 50 ? 0 : 4.99;
+  const shippingCost = 0;
   const finalTotal = total + shippingCost;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -316,18 +316,9 @@ const CheckoutPage = () => {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Portes</span>
                   <span className="text-foreground">
-                    {shippingCost === 0 ? (
-                      <span className="text-green-500">Grátis</span>
-                    ) : (
-                      `€${shippingCost.toFixed(2)}`
-                    )}
+                    <span className="text-green-500">Grátis</span>
                   </span>
                 </div>
-                {total < 50 && (
-                  <p className="text-xs text-muted-foreground">
-                    Faltam €{(50 - total).toFixed(2)} para portes grátis!
-                  </p>
-                )}
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-border">
                   <span className="text-foreground">Total</span>
                   <span className="text-primary">€{finalTotal.toFixed(2)}</span>
