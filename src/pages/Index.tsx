@@ -21,7 +21,6 @@ const Index = () => {
           <ProductsSection />
           <AboutSection />
           <TestimonialsSection />
-          <TestimonialsSection />
           <InstagramSection />
           <NewsletterSection />
         </main>
