@@ -100,27 +100,27 @@ const CheckoutPage = () => {
 
       if (itemsError) throw itemsError;
 
-      // Send confirmation email
-      try {
-        await supabase.functions.invoke("send-order-email", {
-          body: {
-            type: "confirmation",
-            orderId,
-            customerEmail: formData.email,
-            customerName: formData.fullName,
-            orderTotal: finalTotal,
-            items: items.map((item) => ({
-              name: item.product?.name || "Produto",
-              quantity: item.quantity,
-              price: item.product?.price || 0,
-              size: item.size,
-              color: item.color,
-            })),
-          },
-        });
-      } catch (emailError) {
-        console.error("Email sending failed:", emailError);
-      }
+      // Send confirmation email (non-blocking, ignore errors)
+      supabase.functions.invoke("send-order-email", {
+        body: {
+          type: "confirmation",
+          orderId,
+          customerEmail: formData.email,
+          customerName: formData.fullName,
+          orderTotal: finalTotal,
+          items: items.map((item) => ({
+            name: item.product?.name || "Produto",
+            quantity: item.quantity,
+            price: item.product?.price || 0,
+            size: item.size,
+            color: item.color,
+          })),
+        },
+      }).then(({ error }) => {
+        if (error) console.warn("Email sending failed (non-critical):", error);
+      }).catch((err) => {
+        console.warn("Email sending failed (non-critical):", err);
+      });
 
       await clearCart();
       setOrderComplete(true);
