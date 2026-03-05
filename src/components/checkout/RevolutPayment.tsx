@@ -13,9 +13,9 @@ const RevolutPayment = ({ total, onPaymentConfirmed, onCancel }: RevolutPaymentP
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
-  const revolutTag = "@treadtrendz";
-  const revolutIBAN = "PT50 0000 0000 0000 0000 0000 0";
-  const revolutName = "Tread Trendz Lda";
+  const revolutTag = "@rodrigoi36ix";
+  const revolutIBAN = "PT50 3560 0001 9001 8393 0037 9";
+  const revolutName = "Rodrigo Furtado";
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
