@@ -342,7 +342,7 @@ const ProductPage = () => {
                       className="group"
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      <div className="relative rounded-xl overflow-hidden bg-gradient-to-b from-card to-card/50 transition-all hover:shadow-lg hover:shadow-primary/10">
+                      <div className="relative transition-all hover:shadow-lg hover:shadow-primary/10">
                         <div className="aspect-square">
                           <img 
                             src={relatedProduct.images[0]} 
