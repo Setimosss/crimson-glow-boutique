@@ -343,11 +343,11 @@ const ProductPage = () => {
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
                       <div className="relative transition-all hover:shadow-lg hover:shadow-primary/10">
-                        <div className="aspect-square">
+                        <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/5 rounded-xl overflow-hidden border border-primary/10">
                           <img 
                             src={relatedProduct.images[0]} 
                             alt={relatedProduct.name}
-                            className="w-full h-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-105"
+                            className="w-full h-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-105 p-6"
                           />
                         </div>
                         <div className="p-4">

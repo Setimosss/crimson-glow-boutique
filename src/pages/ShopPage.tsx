@@ -141,7 +141,7 @@ const ShopProductCard = ({
                   : product.images[0]
               }
               alt={product.name}
-              className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 p-6"
               loading="lazy"
             />
           ) : (
