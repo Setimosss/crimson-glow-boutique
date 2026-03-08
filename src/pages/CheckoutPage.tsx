@@ -59,12 +59,16 @@ const CheckoutPage = () => {
     try {
       const orderId = crypto.randomUUID();
 
+      // MB Way payments are verified via Stripe before reaching here → "confirmed"
+      // Revolut/Multibanco are manual → stay "pending" until admin verifies
+      const orderStatus = paymentMethod === "mbway" ? "confirmed" : "pending";
+
       const { error: orderError } = await supabase
         .from("orders")
         .insert({
           id: orderId,
           user_id: null,
-          status: "pending",
+          status: orderStatus,
           subtotal: total,
           shipping: shippingCost,
           total: finalTotal,
@@ -145,10 +149,15 @@ const CheckoutPage = () => {
           <main className="container mx-auto px-4 pt-24 pb-12">
             <div className="max-w-lg mx-auto text-center">
               <div className="bg-card border border-border rounded-2xl p-8">
-                <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                <h1 className="text-2xl font-bold text-foreground mb-2">Encomenda Confirmada!</h1>
+              <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+                <h1 className="text-2xl font-bold text-foreground mb-2">
+                  {paymentMethod === "mbway" ? "Encomenda Confirmada!" : "Encomenda Registada!"}
+                </h1>
                 <p className="text-muted-foreground mb-6">
-                  Obrigado pela tua compra. Receberás um email com os detalhes da encomenda.
+                  {paymentMethod === "mbway" 
+                    ? "Obrigado pela tua compra. Receberás um email com os detalhes da encomenda."
+                    : "A tua encomenda foi registada. Será processada assim que confirmarmos a receção do pagamento."
+                  }
                 </p>
                 <Button onClick={() => navigate("/")} className="neon-button">
                   Voltar à Loja
