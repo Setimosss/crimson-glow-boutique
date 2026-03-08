@@ -140,7 +140,7 @@ const ProductPage = () => {
                         <img 
                           src={img} 
                           alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-contain p-1"
+                          className="w-full h-full object-contain bg-card/50 p-1"
                         />
                       </button>
                     ))}
