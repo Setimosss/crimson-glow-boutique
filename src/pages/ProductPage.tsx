@@ -111,11 +111,11 @@ const ProductPage = () => {
                 className="space-y-4"
               >
                 {/* Main Image */}
-                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-card border border-primary/10">
+                <div className="relative aspect-square rounded-2xl overflow-hidden bg-card border border-primary/10">
                   <img 
                     src={activeImages[selectedImage] || product.images[0]} 
                     alt={product.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain p-6 transition-opacity duration-200"
                   />
                   {product.tag && (
                     <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm px-4 py-2 rounded-full font-medium">
