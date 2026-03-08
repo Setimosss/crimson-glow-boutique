@@ -341,12 +341,12 @@ const ProductPage = () => {
                       to={`/product/${relatedProduct.slug}`}
                       className="group"
                     >
-                      <div className="relative rounded-xl overflow-hidden bg-card border border-primary/10 hover:border-primary/30 transition-all">
+                      <div className="relative rounded-xl overflow-hidden bg-gradient-to-b from-card to-card/50 transition-all hover:shadow-lg hover:shadow-primary/10">
                         <div className="aspect-square">
                           <img 
                             src={relatedProduct.images[0]} 
                             alt={relatedProduct.name}
-                            className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-105"
+                            className="w-full h-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>
                         <div className="p-4">
