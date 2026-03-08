@@ -149,20 +149,32 @@
            {isMenuOpen && (
              <nav className="md:hidden mt-6 pb-4">
                <div className="flex flex-col gap-1">
-                 {[
-                   { label: "Home", id: "home" },
-                   { label: "Coleção", id: "collection" },
-                   { label: "Sobre", id: "about" },
-                   { label: "Contacto", id: "contact" },
-                 ].map((item) => (
-                   <button 
-                     key={item.id}
-                     onClick={() => scrollToSection(item.id)} 
-                     className="text-left py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors border-b border-border/30"
-                   >
-                     {item.label}
-                   </button>
-                 ))}
+                  <button 
+                    onClick={() => scrollToSection("home")} 
+                    className="text-left py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors border-b border-border/30"
+                  >
+                    Home
+                  </button>
+                  <Link 
+                    to="/shop"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-left py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors border-b border-border/30"
+                  >
+                    Loja
+                  </Link>
+                  {[
+                    { label: "Coleção", id: "collection" },
+                    { label: "Sobre", id: "about" },
+                    { label: "Contacto", id: "contact" },
+                  ].map((item) => (
+                    <button 
+                      key={item.id}
+                      onClick={() => scrollToSection(item.id)} 
+                      className="text-left py-3 text-lg font-medium text-muted-foreground hover:text-foreground transition-colors border-b border-border/30"
+                    >
+                      {item.label}
+                    </button>
+                  ))}
                  {user && (
                    <button 
                      onClick={() => signOut()} 
