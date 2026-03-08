@@ -111,7 +111,7 @@ const ProductPage = () => {
                 className="space-y-4"
               >
                 {/* Main Image */}
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-card to-card/50">
+                <div className="relative aspect-square">
                   <img 
                     src={activeImages[selectedImage] || product.images[0]} 
                     alt={product.name}
