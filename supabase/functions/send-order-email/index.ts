@@ -156,8 +156,11 @@ Deno.serve(async (req) => {
     const data = await res.json();
 
     if (!res.ok) {
-      console.error("Resend error:", data);
-      throw new Error(data.message || "Failed to send email");
+      console.warn("Resend error (non-critical):", data);
+      // Return 200 with warning instead of 500 — email delivery is non-critical
+      return new Response(JSON.stringify({ success: false, warning: data.message || "Email not sent", data }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(JSON.stringify({ success: true, data }), {
