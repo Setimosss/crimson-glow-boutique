@@ -132,7 +132,7 @@ const ShopProductCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image */}
-        <div className="relative overflow-hidden rounded-xl bg-card aspect-[3/4] border border-border/20 group-hover:border-primary/20 transition-colors duration-500">
+        <div className="relative overflow-hidden aspect-square">
           {product.images[0] ? (
             <img
               src={
@@ -141,7 +141,7 @@ const ShopProductCard = ({
                   : product.images[0]
               }
               alt={product.name}
-              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+              className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105"
               loading="lazy"
             />
           ) : (
