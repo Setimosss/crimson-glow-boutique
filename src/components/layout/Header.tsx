@@ -71,23 +71,36 @@
              </Link>
  
              {/* Desktop Navigation */}
-             <nav className="hidden md:flex items-center gap-10">
-               {[
-                 { label: "Home", id: "home" },
-                 { label: "Coleção", id: "collection" },
-                 { label: "Sobre", id: "about" },
-                 { label: "Contacto", id: "contact" },
-               ].map((item) => (
-                 <button 
-                   key={item.id}
-                   onClick={() => scrollToSection(item.id)} 
-                   className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 py-1 group"
-                 >
-                   {item.label}
-                   <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
-                 </button>
-               ))}
-             </nav>
+            <nav className="hidden md:flex items-center gap-10">
+              <button 
+                onClick={() => scrollToSection("home")} 
+                className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 py-1 group"
+              >
+                Home
+                <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
+              </button>
+              <Link 
+                to="/shop" 
+                className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 py-1 group"
+              >
+                Loja
+                <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
+              </Link>
+              {[
+                { label: "Coleção", id: "collection" },
+                { label: "Sobre", id: "about" },
+                { label: "Contacto", id: "contact" },
+              ].map((item) => (
+                <button 
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)} 
+                  className="relative text-sm font-medium text-muted-foreground hover:text-foreground transition-colors duration-300 py-1 group"
+                >
+                  {item.label}
+                  <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary transition-all duration-300 group-hover:w-full" />
+                </button>
+              ))}
+            </nav>
  
              {/* Actions */}
              <div className="flex items-center gap-1">
