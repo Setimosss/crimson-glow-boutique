@@ -343,18 +343,17 @@ const ProductPage = () => {
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
                       <div className="relative overflow-hidden rounded-2xl bg-card aspect-square border border-border/30 group-hover:border-primary/20 transition-colors duration-500">
-                          <img 
-                            src={relatedProduct.images[0]} 
-                            alt={relatedProduct.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </div>
-                        <div className="mt-4">
-                          <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                            {relatedProduct.name}
-                          </h3>
-                          <p className="text-primary font-black mt-1">€{Number(relatedProduct.price).toFixed(2)}</p>
-                        </div>
+                        <img 
+                          src={relatedProduct.images[0]} 
+                          alt={relatedProduct.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="mt-4">
+                        <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                          {relatedProduct.name}
+                        </h3>
+                        <p className="text-primary font-black mt-1">€{Number(relatedProduct.price).toFixed(2)}</p>
                       </div>
                     </Link>
                   ))}
