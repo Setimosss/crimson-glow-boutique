@@ -59,12 +59,16 @@ const CheckoutPage = () => {
     try {
       const orderId = crypto.randomUUID();
 
+      // MB Way payments are verified via Stripe before reaching here → "confirmed"
+      // Revolut/Multibanco are manual → stay "pending" until admin verifies
+      const orderStatus = paymentMethod === "mbway" ? "confirmed" : "pending";
+
       const { error: orderError } = await supabase
         .from("orders")
         .insert({
           id: orderId,
           user_id: null,
-          status: "pending",
+          status: orderStatus,
           subtotal: total,
           shipping: shippingCost,
           total: finalTotal,
