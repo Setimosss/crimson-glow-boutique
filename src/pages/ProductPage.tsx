@@ -342,19 +342,18 @@ const ProductPage = () => {
                       className="group"
                       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     >
-                      <div className="relative transition-all hover:shadow-lg hover:shadow-primary/10">
-                        <div className="aspect-square bg-gradient-to-br from-muted/20 to-muted/5 rounded-xl overflow-hidden border border-primary/10">
+                      <div className="relative overflow-hidden rounded-2xl bg-card aspect-square border border-border/30 group-hover:border-primary/20 transition-colors duration-500">
                           <img 
                             src={relatedProduct.images[0]} 
                             alt={relatedProduct.name}
-                            className="w-full h-full object-contain drop-shadow-lg transition-transform duration-500 group-hover:scale-105 p-6"
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                           />
                         </div>
-                        <div className="p-4">
-                          <h3 className="font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                        <div className="mt-4">
+                          <h3 className="font-bold text-foreground truncate group-hover:text-primary transition-colors">
                             {relatedProduct.name}
                           </h3>
-                          <p className="text-primary font-bold mt-1">€{Number(relatedProduct.price).toFixed(2)}</p>
+                          <p className="text-primary font-black mt-1">€{Number(relatedProduct.price).toFixed(2)}</p>
                         </div>
                       </div>
                     </Link>
