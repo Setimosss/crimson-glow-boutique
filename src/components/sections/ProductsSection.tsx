@@ -33,7 +33,7 @@ const ProductsSection = () => {
               <span className="text-primary neon-text">DESTAQUE</span>
             </h2>
           </div>
-          <Link to="/#collection" className="mt-4 md:mt-0">
+          <Link to="/shop" className="mt-4 md:mt-0">
             <Button variant="ghost" className="text-muted-foreground hover:text-primary group">
               Ver Tudo
               <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />

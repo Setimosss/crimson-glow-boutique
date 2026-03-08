@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
 import ProtectedAdminRoute from "@/components/admin/ProtectedAdminRoute";
 import Index from "./pages/Index";
+import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import AdminPage from "./pages/AdminPage";
@@ -27,6 +28,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/shop" element={<ShopPage />} />
               <Route path="/product/:id" element={<ProductPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/admin" element={<ProtectedAdminRoute><AdminPage /></ProtectedAdminRoute>} />
