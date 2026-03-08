@@ -131,7 +131,7 @@ const ProductPage = () => {
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all ${
+                        className={`flex-shrink-0 w-20 h-20 overflow-hidden transition-all ${
                           selectedImage === index 
                             ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
                             : 'opacity-50 hover:opacity-80'
@@ -140,7 +140,7 @@ const ProductPage = () => {
                         <img 
                           src={img} 
                           alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-contain bg-card/50 p-1"
+                          className="w-full h-full object-contain"
                         />
                       </button>
                     ))}
