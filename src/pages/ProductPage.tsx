@@ -131,10 +131,10 @@ const ProductPage = () => {
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all ${
                           selectedImage === index 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-primary/10 hover:border-primary/30'
+                            ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
+                            : 'opacity-50 hover:opacity-80'
                         }`}
                       >
                         <img 
