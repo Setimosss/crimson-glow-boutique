@@ -111,11 +111,11 @@ const ProductPage = () => {
                 className="space-y-4"
               >
                 {/* Main Image */}
-                <div className="relative aspect-square rounded-2xl overflow-hidden bg-card border border-primary/10">
+                <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-b from-card to-card/50">
                   <img 
                     src={activeImages[selectedImage] || product.images[0]} 
                     alt={product.name}
-                    className="w-full h-full object-contain p-6 transition-opacity duration-200"
+                    className="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-200"
                   />
                   {product.tag && (
                     <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm px-4 py-2 rounded-full font-medium">
@@ -131,16 +131,16 @@ const ProductPage = () => {
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-24 rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all ${
                           selectedImage === index 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-primary/10 hover:border-primary/30'
+                            ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' 
+                            : 'opacity-50 hover:opacity-80'
                         }`}
                       >
                         <img 
                           src={img} 
                           alt={`${product.name} ${index + 1}`}
-                          className="w-full h-full object-contain p-1"
+                          className="w-full h-full object-contain bg-card/50 p-1"
                         />
                       </button>
                     ))}
