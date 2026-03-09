@@ -113,7 +113,7 @@ const ShopProductCard = ({
   index: number;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [imageError, setImageError] = useState(false);
+  const [failedImages, setFailedImages] = useState<string[]>([]);
   const { addItem } = useCart();
 
   const fallbackImage = product.colors?.find(
@@ -122,11 +122,23 @@ const ShopProductCard = ({
 
   const primaryImage = product.images?.[0] || fallbackImage || "";
   const secondaryImage = product.images?.[1] || fallbackImage || primaryImage;
+  const colorImages =
+    product.colors?.flatMap((color) =>
+      Array.isArray(color.images) ? color.images : [],
+    ) || [];
+  const preferredImage = isHovered ? secondaryImage : primaryImage;
+  const imageCandidates = Array.from(
+    new Set(
+      [preferredImage, primaryImage, secondaryImage, fallbackImage, ...colorImages].filter(
+        (img): img is string => Boolean(img),
+      ),
+    ),
+  );
   const displayImage =
-    !imageError && (isHovered ? secondaryImage : primaryImage) || fallbackImage;
+    imageCandidates.find((img) => !failedImages.includes(img)) || "";
 
   useEffect(() => {
-    setImageError(false);
+    setFailedImages([]);
   }, [product.id]);
 
   return (
@@ -151,7 +163,12 @@ const ShopProductCard = ({
               alt={product.name}
               className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 p-6"
               loading="lazy"
-              onError={() => setImageError(true)}
+              onError={() => {
+                if (!displayImage) return;
+                setFailedImages((prev) =>
+                  prev.includes(displayImage) ? prev : [...prev, displayImage],
+                );
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
