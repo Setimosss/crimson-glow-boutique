@@ -163,7 +163,12 @@ const ShopProductCard = ({
               alt={product.name}
               className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 p-6"
               loading="lazy"
-              onError={() => setImageError(true)}
+              onError={() => {
+                if (!displayImage) return;
+                setFailedImages((prev) =>
+                  prev.includes(displayImage) ? prev : [...prev, displayImage],
+                );
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
