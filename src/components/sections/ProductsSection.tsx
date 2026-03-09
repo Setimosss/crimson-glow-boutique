@@ -62,7 +62,26 @@ const ProductsSection = () => {
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [colorRotationIndex, setColorRotationIndex] = useState(0);
   const { addItem } = useCart();
+
+  const colorPrimaryImages = (product.colors || [])
+    .filter((color) => Array.isArray(color.images) && color.images.length > 0)
+    .map((color) => color.images[0]);
+
+  const hasMultipleColors = colorPrimaryImages.length > 1;
+
+  useEffect(() => {
+    if (!hasMultipleColors || isHovered) return;
+    const interval = setInterval(() => {
+      setColorRotationIndex((prev) => (prev + 1) % colorPrimaryImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [hasMultipleColors, isHovered, colorPrimaryImages.length]);
+
+  const currentImage = hasMultipleColors
+    ? colorPrimaryImages[colorRotationIndex]
+    : product.images?.[0];
 
   return (
     <motion.div
