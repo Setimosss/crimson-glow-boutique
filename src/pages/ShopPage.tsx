@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ShoppingBag, Eye, SlidersHorizontal, ChevronLeft } from "lucide-react";
 import { useProducts, useCategories } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
@@ -82,15 +82,13 @@ const ShopPage = () => {
                 layout
                 className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
               >
-                <AnimatePresence mode="popLayout">
-                  {filteredProducts.map((product, index) => (
-                    <ShopProductCard
-                      key={product.id}
-                      product={product}
-                      index={index}
-                    />
-                  ))}
-                </AnimatePresence>
+                {filteredProducts.map((product, index) => (
+                  <ShopProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                  />
+                ))}
               </motion.div>
             ) : (
               <div className="text-center py-20">
@@ -115,7 +113,21 @@ const ShopProductCard = ({
   index: number;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const { addItem } = useCart();
+
+  const fallbackImage = product.colors?.find(
+    (color) => Array.isArray(color.images) && color.images.length > 0,
+  )?.images?.[0];
+
+  const primaryImage = product.images?.[0] || fallbackImage || "";
+  const secondaryImage = product.images?.[1] || fallbackImage || primaryImage;
+  const displayImage =
+    !imageError && (isHovered ? secondaryImage : primaryImage) || fallbackImage;
+
+  useEffect(() => {
+    setImageError(false);
+  }, [product.id]);
 
   return (
     <motion.div
@@ -133,16 +145,13 @@ const ShopProductCard = ({
       >
         {/* Image */}
         <div className="relative overflow-hidden aspect-square rounded-xl bg-card/40">
-          {product.images[0] ? (
+          {displayImage ? (
             <img
-              src={
-                isHovered && product.images[1]
-                  ? product.images[1]
-                  : product.images[0]
-              }
+              src={displayImage}
               alt={product.name}
               className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 p-6"
               loading="lazy"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
