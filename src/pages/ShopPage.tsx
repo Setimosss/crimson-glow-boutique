@@ -244,6 +244,21 @@ const ShopProductCard = ({
               </span>
             )}
           </div>
+          {hasMultipleColors && (
+            <div className="flex items-center gap-1.5 mt-2">
+              {product.colors.map((color, i) => (
+                <span
+                  key={i}
+                  className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
+                    i === colorRotationIndex
+                      ? "border-primary scale-125"
+                      : "border-border/50 scale-100"
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Link>
     </motion.div>
