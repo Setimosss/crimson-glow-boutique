@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useProducts } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Product } from "@/types/database";
 import { Button } from "@/components/ui/button";
 
@@ -62,7 +62,26 @@ const ProductsSection = () => {
 
 const ProductCard = ({ product, index }: { product: Product; index: number }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [colorRotationIndex, setColorRotationIndex] = useState(0);
   const { addItem } = useCart();
+
+  const colorPrimaryImages = (product.colors || [])
+    .filter((color) => Array.isArray(color.images) && color.images.length > 0)
+    .map((color) => color.images[0]);
+
+  const hasMultipleColors = colorPrimaryImages.length > 1;
+
+  useEffect(() => {
+    if (!hasMultipleColors || isHovered) return;
+    const interval = setInterval(() => {
+      setColorRotationIndex((prev) => (prev + 1) % colorPrimaryImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [hasMultipleColors, isHovered, colorPrimaryImages.length]);
+
+  const currentImage = hasMultipleColors
+    ? colorPrimaryImages[colorRotationIndex]
+    : product.images?.[0];
 
   return (
     <motion.div
@@ -80,7 +99,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         {/* Image container */}
         <div className="relative overflow-hidden rounded-2xl bg-card aspect-square border border-border/30 group-hover:border-primary/20 transition-colors duration-500">
           <img 
-            src={isHovered && product.images[1] ? product.images[1] : product.images[0]} 
+            src={isHovered && product.images[1] ? product.images[1] : (currentImage || product.images[0])} 
             alt={product.name}
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
           />

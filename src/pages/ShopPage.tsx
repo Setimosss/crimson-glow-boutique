@@ -114,13 +114,30 @@ const ShopProductCard = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [failedImages, setFailedImages] = useState<string[]>([]);
+  const [colorRotationIndex, setColorRotationIndex] = useState(0);
   const { addItem } = useCart();
 
-  const fallbackImage = product.colors?.find(
-    (color) => Array.isArray(color.images) && color.images.length > 0,
-  )?.images?.[0];
+  // Build unique color images for rotation (one per color)
+  const colorPrimaryImages = (product.colors || [])
+    .filter((color) => Array.isArray(color.images) && color.images.length > 0)
+    .map((color) => color.images[0]);
 
-  const primaryImage = product.images?.[0] || fallbackImage || "";
+  const hasMultipleColors = colorPrimaryImages.length > 1;
+
+  // Auto-rotate colors every 3 seconds
+  useEffect(() => {
+    if (!hasMultipleColors || isHovered) return;
+    const interval = setInterval(() => {
+      setColorRotationIndex((prev) => (prev + 1) % colorPrimaryImages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [hasMultipleColors, isHovered, colorPrimaryImages.length]);
+
+  const fallbackImage = colorPrimaryImages[0];
+
+  const primaryImage = hasMultipleColors
+    ? colorPrimaryImages[colorRotationIndex]
+    : product.images?.[0] || fallbackImage || "";
   const secondaryImage = product.images?.[1] || fallbackImage || primaryImage;
   const colorImages =
     product.colors?.flatMap((color) =>
@@ -227,6 +244,21 @@ const ShopProductCard = ({
               </span>
             )}
           </div>
+          {hasMultipleColors && (
+            <div className="flex items-center gap-1.5 mt-2">
+              {product.colors.map((color, i) => (
+                <span
+                  key={i}
+                  className={`w-3 h-3 rounded-full border-2 transition-all duration-300 ${
+                    i === colorRotationIndex
+                      ? "border-primary scale-125"
+                      : "border-border/50 scale-100"
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </Link>
     </motion.div>
