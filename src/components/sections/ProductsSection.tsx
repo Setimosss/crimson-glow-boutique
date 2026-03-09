@@ -99,7 +99,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         {/* Image container */}
         <div className="relative overflow-hidden rounded-2xl bg-card aspect-square border border-border/30 group-hover:border-primary/20 transition-colors duration-500">
           <img 
-            src={isHovered && product.images[1] ? product.images[1] : product.images[0]} 
+            src={isHovered && product.images[1] ? product.images[1] : (currentImage || product.images[0])} 
             alt={product.name}
             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
           />
