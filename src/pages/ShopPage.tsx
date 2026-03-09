@@ -156,12 +156,12 @@ const ShopProductCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image */}
-        <div className="relative overflow-hidden aspect-square rounded-xl">
+        <div className="relative overflow-hidden aspect-square rounded-xl border border-border/40 bg-card">
           {displayImage ? (
             <img
               src={displayImage}
               alt={product.name}
-              className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               loading="lazy"
               onError={() => {
                 if (!displayImage) return;
