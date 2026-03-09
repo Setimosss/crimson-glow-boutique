@@ -111,11 +111,11 @@ const ProductPage = () => {
                 className="space-y-4"
               >
                 {/* Main Image */}
-                <div className="relative aspect-square bg-gradient-to-br from-muted/20 to-muted/5 rounded-2xl overflow-hidden backdrop-blur-sm border border-primary/10">
+                <div className="relative aspect-square bg-card rounded-2xl overflow-hidden border border-border/30">
                   <img 
                     src={activeImages[selectedImage] || product.images[0]} 
                     alt={product.name}
-                    className="w-full h-full object-contain drop-shadow-2xl transition-opacity duration-200 p-8"
+                    className="w-full h-full object-cover transition-opacity duration-200"
                   />
                   {product.tag && (
                     <span className="absolute top-4 left-4 bg-primary text-primary-foreground text-sm px-4 py-2 rounded-full font-medium">
@@ -131,7 +131,7 @@ const ProductPage = () => {
                       <button
                         key={index}
                         onClick={() => setSelectedImage(index)}
-                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all bg-gradient-to-br from-muted/20 to-muted/5 border ${
+                        className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden transition-all bg-card border ${
                           selectedImage === index 
                             ? 'border-primary ring-2 ring-primary/30' 
                             : 'border-primary/10 opacity-50 hover:opacity-80 hover:border-primary/20'
