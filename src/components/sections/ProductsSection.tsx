@@ -8,10 +8,7 @@ import type { Product } from "@/types/database";
 import { Button } from "@/components/ui/button";
 
 const ProductsSection = () => {
-  const { data: products, isLoading } = useProducts();
-
-  const featuredSlugs = ["air-force-1-black", "off-white-ooo-black"];
-  const featuredProducts = products?.filter(p => featuredSlugs.includes(p.slug));
+  const { data: featuredProducts, isLoading } = useFeaturedProducts();
 
   return (
     <section id="collection" className="py-28 relative">
