@@ -132,7 +132,7 @@ const ShopProductCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image */}
-        <div className="relative overflow-hidden aspect-square bg-gradient-to-br from-muted/20 to-muted/5 rounded-xl border border-primary/10">
+        <div className="relative overflow-hidden aspect-square rounded-xl bg-card/40">
           {product.images[0] ? (
             <img
               src={
