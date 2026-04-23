@@ -326,9 +326,10 @@ const QuickViewDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl overflow-hidden border-border/60 p-0 sm:rounded-xl">
+      <DialogContent className="max-w-4xl overflow-hidden border-border/70 bg-background/95 p-0 shadow-[0_40px_140px_hsl(0_0%_0%/0.58)] backdrop-blur-2xl sm:rounded-2xl">
         <div className="grid gap-0 md:grid-cols-[1fr_0.9fr]">
-          <div className="aspect-square bg-card md:aspect-auto">
+          <div className="relative aspect-square bg-card md:aspect-auto">
+            <div className="absolute inset-0 z-10 bg-gradient-to-t from-background/35 via-transparent to-transparent" />
             {image ? (
               <img src={image} alt={product.name} className="h-full w-full object-cover" />
             ) : (
@@ -338,9 +339,9 @@ const QuickViewDialog = ({
             )}
           </div>
 
-          <div className="flex flex-col p-6 md:p-8">
+          <div className="flex flex-col p-6 md:p-8 lg:p-10">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black leading-tight md:text-3xl">
+              <DialogTitle className="pr-8 text-2xl font-black leading-tight md:text-4xl">
                 {product.name}
               </DialogTitle>
               <DialogDescription className="line-clamp-3 pt-2">
@@ -367,7 +368,7 @@ const QuickViewDialog = ({
                       onClick={() => setSelectedColor(color.name)}
                       className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition-all ${
                         selectedColor === color.name
-                          ? "border-primary bg-primary/10 text-foreground"
+                          ? "border-primary bg-primary/15 text-foreground shadow-[0_0_24px_hsl(var(--primary)/0.14)]"
                           : "border-border/60 text-muted-foreground hover:border-primary/50 hover:text-foreground"
                       }`}
                     >
@@ -401,11 +402,11 @@ const QuickViewDialog = ({
             )}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button className="h-12 flex-1 font-bold" onClick={handleAddToCart}>
+              <Button className="neon-button h-12 flex-1 rounded-full font-bold" onClick={handleAddToCart}>
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 Adicionar ao carrinho
               </Button>
-              <Button variant="outline" className="h-12" asChild>
+              <Button variant="outline" className="h-12 rounded-full border-border/70 bg-card/40" asChild>
                 <Link to={`/product/${product.slug}`}>Ver detalhes</Link>
               </Button>
             </div>
