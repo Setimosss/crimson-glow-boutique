@@ -38,10 +38,10 @@ const ShopPage = () => {
       <AnimatedBackground />
       <div className="relative z-10">
         <Header />
-        <main className="pt-24 pb-20">
+        <main className="pt-28 pb-24">
           <div className="container mx-auto px-4">
             {/* Page Header */}
-            <div className="mb-10">
+            <div className="mb-12 max-w-3xl">
               <Link
                 to="/"
                 className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground text-sm mb-6 transition-colors"
@@ -49,7 +49,7 @@ const ShopPage = () => {
                 <ChevronLeft className="w-4 h-4" />
                 Voltar
               </Link>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight leading-none">
+              <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-none">
                 <span className="text-primary neon-text">LOJA</span>
               </h1>
               <p className="text-muted-foreground mt-3 text-sm md:text-base max-w-md">
@@ -58,7 +58,7 @@ const ShopPage = () => {
             </div>
 
             {/* Category Tabs */}
-            <div className="flex items-center gap-2 mb-10 overflow-x-auto pb-2 scrollbar-hide">
+            <div className="premium-panel rounded-2xl px-3 py-3 mb-10 flex items-center gap-2 overflow-x-auto scrollbar-hide">
               <SlidersHorizontal className="w-4 h-4 text-muted-foreground mr-1 flex-shrink-0" />
               {categoryTabs.map((cat) => (
                 <button
@@ -88,7 +88,7 @@ const ShopPage = () => {
             ) : filteredProducts && filteredProducts.length > 0 ? (
               <motion.div
                 layout
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6"
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-6 md:gap-y-10"
               >
                 {filteredProducts.map((product, index) => (
                   <ShopProductCard
@@ -185,7 +185,7 @@ const ShopProductCard = ({
       <div
         role="button"
         tabIndex={0}
-        className="group block"
+        className="group block cursor-pointer rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         onClick={() => onQuickView(product)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") onQuickView(product);
@@ -194,12 +194,13 @@ const ShopProductCard = ({
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image */}
-        <div className="relative overflow-hidden aspect-square rounded-xl border border-border/40 bg-card">
+        <div className="relative overflow-hidden aspect-square rounded-xl premium-panel transition-all duration-500 group-hover:border-primary/35 group-hover:shadow-[0_24px_80px_hsl(var(--primary)/0.14)]">
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-background/50 via-transparent to-transparent opacity-70" />
           {displayImage ? (
             <img
               src={displayImage}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 group-hover:brightness-110"
               loading="lazy"
               onError={() => {
                 if (!displayImage) return;
@@ -232,13 +233,14 @@ const ShopProductCard = ({
           )}
 
           {/* Hover Overlay */}
-          <div className="absolute inset-0 bg-background/20 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
+          <div className="absolute inset-0 z-20 bg-background/20 backdrop-blur-[1px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-3">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 addItem(product.id, 1, product.sizes[0] || undefined);
               }}
             >
@@ -259,7 +261,7 @@ const ShopProductCard = ({
         </div>
 
         {/* Info */}
-        <div className="mt-3 px-0.5">
+        <div className="mt-4 px-0.5">
           <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors text-sm leading-tight truncate">
             {product.name}
           </h3>
