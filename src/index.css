@@ -110,7 +110,7 @@ All colors MUST be HSL.
     inset: 0;
     z-index: 0;
     overflow: hidden;
-    background: #000000;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(350 46% 5%) 48%, hsl(0 0% 0%) 100%);
   }
 
   .animated-bg::before {
@@ -121,10 +121,10 @@ All colors MUST be HSL.
     top: -50%;
     left: -50%;
     background: 
-      radial-gradient(ellipse 600px 600px at 20% 20%, hsl(0 50% 8% / 0.8) 0%, transparent 50%),
-      radial-gradient(ellipse 500px 500px at 80% 30%, hsl(0 40% 6% / 0.6) 0%, transparent 45%),
-      radial-gradient(ellipse 700px 700px at 40% 80%, hsl(0 45% 7% / 0.7) 0%, transparent 50%),
-      radial-gradient(ellipse 400px 400px at 70% 70%, hsl(0 35% 5% / 0.5) 0%, transparent 40%);
+      radial-gradient(ellipse 720px 520px at 18% 18%, hsl(var(--primary) / 0.18) 0%, transparent 58%),
+      radial-gradient(ellipse 520px 440px at 82% 24%, hsl(350 70% 18% / 0.36) 0%, transparent 52%),
+      radial-gradient(ellipse 760px 560px at 46% 82%, hsl(348 62% 13% / 0.42) 0%, transparent 54%),
+      linear-gradient(115deg, transparent 0%, hsl(var(--primary) / 0.06) 46%, transparent 70%);
     animation: fluidMove 25s ease-in-out infinite;
   }
 
@@ -136,8 +136,8 @@ All colors MUST be HSL.
     top: -25%;
     left: -25%;
     background: 
-      radial-gradient(ellipse 450px 450px at 60% 40%, hsl(0 55% 10% / 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse 350px 350px at 30% 60%, hsl(0 50% 8% / 0.3) 0%, transparent 45%);
+      radial-gradient(ellipse 460px 460px at 60% 40%, hsl(var(--primary) / 0.22) 0%, transparent 54%),
+      radial-gradient(ellipse 420px 360px at 30% 60%, hsl(346 54% 16% / 0.34) 0%, transparent 48%);
     animation: fluidMoveReverse 20s ease-in-out infinite;
   }
 
