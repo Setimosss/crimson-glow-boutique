@@ -5,6 +5,13 @@ import { ShoppingBag, Eye, SlidersHorizontal, ChevronLeft } from "lucide-react";
 import { useProducts, useCategories } from "@/hooks/useProducts";
 import { useCart } from "@/contexts/CartContext";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import AnimatedBackground from "@/components/AnimatedBackground";
@@ -14,6 +21,7 @@ const ShopPage = () => {
   const { data: products, isLoading } = useProducts();
   const { data: categories } = useCategories();
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   const filteredProducts =
     activeCategory === "all"
@@ -87,6 +95,7 @@ const ShopPage = () => {
                     key={product.id}
                     product={product}
                     index={index}
+                    onQuickView={setQuickViewProduct}
                   />
                 ))}
               </motion.div>
@@ -99,6 +108,11 @@ const ShopPage = () => {
             )}
           </div>
         </main>
+        <QuickViewDialog
+          product={quickViewProduct}
+          open={Boolean(quickViewProduct)}
+          onOpenChange={(open) => !open && setQuickViewProduct(null)}
+        />
         <Footer />
       </div>
     </div>
@@ -108,9 +122,11 @@ const ShopPage = () => {
 const ShopProductCard = ({
   product,
   index,
+  onQuickView,
 }: {
   product: Product;
   index: number;
+  onQuickView: (product: Product) => void;
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [failedImages, setFailedImages] = useState<string[]>([]);
@@ -166,9 +182,14 @@ const ShopProductCard = ({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
     >
-      <Link
-        to={`/product/${product.slug}`}
+      <div
+        role="button"
+        tabIndex={0}
         className="group block"
+        onClick={() => onQuickView(product)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") onQuickView(product);
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -223,9 +244,17 @@ const ShopProductCard = ({
             >
               <ShoppingBag className="w-4 h-4" />
             </motion.button>
-            <span className="w-11 h-11 rounded-full bg-card/90 backdrop-blur-sm text-foreground flex items-center justify-center shadow-lg border border-border/30">
+            <button
+              className="w-11 h-11 rounded-full bg-card/90 backdrop-blur-sm text-foreground flex items-center justify-center shadow-lg border border-border/30"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView(product);
+              }}
+              aria-label={`Vista rápida de ${product.name}`}
+            >
               <Eye className="w-4 h-4" />
-            </span>
+            </button>
           </div>
         </div>
 
@@ -260,7 +289,7 @@ const ShopProductCard = ({
             </div>
           )}
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 };
