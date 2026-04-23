@@ -11,7 +11,7 @@ const ProductsSection = () => {
   const { data: featuredProducts, isLoading } = useFeaturedProducts();
 
   return (
-    <section id="collection" className="py-28 relative">
+    <section id="collection" className="py-28 md:py-36 relative">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <motion.div 
@@ -19,13 +19,13 @@ const ProductsSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row md:items-end md:justify-between mb-14"
+          className="flex flex-col md:flex-row md:items-end md:justify-between mb-16 gap-6"
         >
           <div>
             <span className="text-primary text-xs uppercase tracking-[0.4em] font-medium">
               Coleção
             </span>
-            <h2 className="text-4xl md:text-6xl font-black mt-2 leading-none">
+            <h2 className="text-4xl md:text-6xl font-black mt-3 leading-none tracking-tight">
               PRODUTOS EM{" "}
               <span className="text-primary neon-text">DESTAQUE</span>
             </h2>
@@ -40,13 +40,13 @@ const ProductsSection = () => {
 
         {/* Products */}
         {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-10 max-w-6xl mx-auto">
             {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="bg-primary/5 rounded-2xl animate-pulse aspect-square" />
+              <div key={i} className="premium-panel rounded-2xl animate-pulse aspect-square" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 lg:gap-10 max-w-6xl mx-auto">
             {featuredProducts?.map((product, index) => (
               <ProductCard key={product.id} product={product} index={index} />
             ))}
@@ -94,11 +94,12 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Image container */}
-        <div className="relative overflow-hidden rounded-2xl bg-card aspect-square border border-border/30 group-hover:border-primary/20 transition-colors duration-500">
+        <div className="relative overflow-hidden rounded-2xl premium-panel aspect-square group-hover:border-primary/35 transition-all duration-500 group-hover:shadow-[0_32px_100px_hsl(var(--primary)/0.16)]">
+          <div className="absolute inset-0 z-10 bg-gradient-to-t from-background/45 via-transparent to-transparent opacity-80" />
           <img 
             src={isHovered && product.images[1] ? product.images[1] : (currentImage || product.images[0])} 
             alt={product.name}
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105 group-hover:brightness-110"
           />
           
           {/* Tag */}
@@ -115,7 +116,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
           )}
 
           {/* Hover Actions */}
-          <div className="absolute inset-0 bg-background/30 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
+          <div className="absolute inset-0 z-20 bg-background/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center gap-4">
             <motion.button
               initial={{ scale: 0.8, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
@@ -134,7 +135,7 @@ const ProductCard = ({ product, index }: { product: Product; index: number }) =>
         </div>
 
         {/* Info */}
-        <div className="mt-5 flex items-start justify-between">
+        <div className="mt-5 flex items-start justify-between gap-4">
           <div>
             <h3 className="font-bold text-foreground group-hover:text-primary transition-colors text-lg">
               {product.name}

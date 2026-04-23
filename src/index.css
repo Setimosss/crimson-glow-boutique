@@ -8,38 +8,38 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 95%;
+    --background: 350 38% 3%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 30% 6%;
+    --card: 350 34% 6%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 30% 4%;
+    --popover: 350 36% 5%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 70% 45%;
+    --primary: 354 78% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 40% 12%;
+    --secondary: 350 42% 13%;
     --secondary-foreground: 0 0% 90%;
 
-    --muted: 0 15% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 350 22% 12%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 0 60% 40%;
+    --accent: 348 64% 38%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 30% 15%;
-    --input: 0 30% 10%;
-    --ring: 0 60% 40%;
+    --border: 350 30% 17%;
+    --input: 350 28% 11%;
+    --ring: 354 72% 48%;
 
     --radius: 0.5rem;
 
-    --neon-glow: 0 0 8px hsl(0 60% 45% / 0.6), 0 0 16px hsl(0 60% 45% / 0.4), 0 0 32px hsl(0 60% 45% / 0.2);
-    --neon-glow-intense: 0 0 10px hsl(0 60% 45% / 0.7), 0 0 25px hsl(0 60% 45% / 0.5), 0 0 50px hsl(0 60% 45% / 0.3);
+    --neon-glow: 0 0 8px hsl(var(--primary) / 0.58), 0 0 18px hsl(var(--primary) / 0.34), 0 0 42px hsl(var(--primary) / 0.18);
+    --neon-glow-intense: 0 0 12px hsl(var(--primary) / 0.72), 0 0 32px hsl(var(--primary) / 0.44), 0 0 70px hsl(var(--primary) / 0.22);
 
     --sidebar-background: 0 30% 4%;
     --sidebar-foreground: 0 0% 95%;
@@ -52,7 +52,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 0%;
+    --background: 350 38% 3%;
     --foreground: 0 0% 95%;
 
     --card: 0 30% 6%;
@@ -61,7 +61,7 @@ All colors MUST be HSL.
     --popover: 0 30% 4%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 70% 45%;
+    --primary: 354 78% 48%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 40% 12%;
@@ -110,7 +110,7 @@ All colors MUST be HSL.
     inset: 0;
     z-index: 0;
     overflow: hidden;
-    background: #000000;
+    background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(350 46% 5%) 48%, hsl(0 0% 0%) 100%);
   }
 
   .animated-bg::before {
@@ -121,10 +121,10 @@ All colors MUST be HSL.
     top: -50%;
     left: -50%;
     background: 
-      radial-gradient(ellipse 600px 600px at 20% 20%, hsl(0 50% 8% / 0.8) 0%, transparent 50%),
-      radial-gradient(ellipse 500px 500px at 80% 30%, hsl(0 40% 6% / 0.6) 0%, transparent 45%),
-      radial-gradient(ellipse 700px 700px at 40% 80%, hsl(0 45% 7% / 0.7) 0%, transparent 50%),
-      radial-gradient(ellipse 400px 400px at 70% 70%, hsl(0 35% 5% / 0.5) 0%, transparent 40%);
+      radial-gradient(ellipse 720px 520px at 18% 18%, hsl(var(--primary) / 0.18) 0%, transparent 58%),
+      radial-gradient(ellipse 520px 440px at 82% 24%, hsl(350 70% 18% / 0.36) 0%, transparent 52%),
+      radial-gradient(ellipse 760px 560px at 46% 82%, hsl(348 62% 13% / 0.42) 0%, transparent 54%),
+      linear-gradient(115deg, transparent 0%, hsl(var(--primary) / 0.06) 46%, transparent 70%);
     animation: fluidMove 25s ease-in-out infinite;
   }
 
@@ -136,8 +136,8 @@ All colors MUST be HSL.
     top: -25%;
     left: -25%;
     background: 
-      radial-gradient(ellipse 450px 450px at 60% 40%, hsl(0 55% 10% / 0.4) 0%, transparent 50%),
-      radial-gradient(ellipse 350px 350px at 30% 60%, hsl(0 50% 8% / 0.3) 0%, transparent 45%);
+      radial-gradient(ellipse 460px 460px at 60% 40%, hsl(var(--primary) / 0.22) 0%, transparent 54%),
+      radial-gradient(ellipse 420px 360px at 30% 60%, hsl(346 54% 16% / 0.34) 0%, transparent 48%);
     animation: fluidMoveReverse 20s ease-in-out infinite;
   }
 
@@ -169,21 +169,27 @@ All colors MUST be HSL.
   }
 
   .neon-text {
-    text-shadow: 0 0 6px hsl(0 60% 45% / 0.5), 0 0 12px hsl(0 60% 45% / 0.3), 0 0 24px hsl(0 60% 45% / 0.2);
+    text-shadow: 0 0 8px hsl(var(--primary) / 0.55), 0 0 18px hsl(var(--primary) / 0.3), 0 0 42px hsl(var(--primary) / 0.16);
   }
 
   .neon-glow {
-    box-shadow: 0 0 6px hsl(0 60% 45% / 0.5), 0 0 12px hsl(0 60% 45% / 0.3), 0 0 24px hsl(0 60% 45% / 0.2);
+    box-shadow: var(--neon-glow);
   }
 
   .neon-button {
     @apply bg-primary text-primary-foreground font-medium px-6 py-3 rounded-md transition-all duration-300;
-    box-shadow: 0 0 8px hsl(0 60% 45% / 0.4), 0 0 16px hsl(0 60% 45% / 0.2);
+    box-shadow: var(--neon-glow), inset 0 1px 0 hsl(0 0% 100% / 0.22);
   }
 
   .neon-button:hover {
-    box-shadow: 0 0 12px hsl(0 60% 45% / 0.5), 0 0 24px hsl(0 60% 45% / 0.3), 0 0 40px hsl(0 60% 45% / 0.2);
+    box-shadow: var(--neon-glow-intense), inset 0 1px 0 hsl(0 0% 100% / 0.28);
     transform: translateY(-2px);
+  }
+
+  .premium-panel {
+    background: linear-gradient(145deg, hsl(var(--card) / 0.88), hsl(var(--background) / 0.74));
+    border: 1px solid hsl(var(--border) / 0.72);
+    box-shadow: 0 28px 90px hsl(0 0% 0% / 0.38), inset 0 1px 0 hsl(0 0% 100% / 0.05);
   }
 
   .nav-link {
