@@ -8,38 +8,38 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 95%;
+    --background: 350 38% 3%;
+    --foreground: 0 0% 96%;
 
-    --card: 0 30% 6%;
+    --card: 350 34% 6%;
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 30% 4%;
+    --popover: 350 36% 5%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 70% 45%;
+    --primary: 354 78% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 40% 12%;
+    --secondary: 350 42% 13%;
     --secondary-foreground: 0 0% 90%;
 
-    --muted: 0 15% 12%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 350 22% 12%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 0 60% 40%;
+    --accent: 348 64% 38%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 65% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 30% 15%;
-    --input: 0 30% 10%;
-    --ring: 0 60% 40%;
+    --border: 350 30% 17%;
+    --input: 350 28% 11%;
+    --ring: 354 72% 48%;
 
     --radius: 0.5rem;
 
-    --neon-glow: 0 0 8px hsl(0 60% 45% / 0.6), 0 0 16px hsl(0 60% 45% / 0.4), 0 0 32px hsl(0 60% 45% / 0.2);
-    --neon-glow-intense: 0 0 10px hsl(0 60% 45% / 0.7), 0 0 25px hsl(0 60% 45% / 0.5), 0 0 50px hsl(0 60% 45% / 0.3);
+    --neon-glow: 0 0 8px hsl(var(--primary) / 0.58), 0 0 18px hsl(var(--primary) / 0.34), 0 0 42px hsl(var(--primary) / 0.18);
+    --neon-glow-intense: 0 0 12px hsl(var(--primary) / 0.72), 0 0 32px hsl(var(--primary) / 0.44), 0 0 70px hsl(var(--primary) / 0.22);
 
     --sidebar-background: 0 30% 4%;
     --sidebar-foreground: 0 0% 95%;
@@ -52,7 +52,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 0 0% 0%;
+    --background: 350 38% 3%;
     --foreground: 0 0% 95%;
 
     --card: 0 30% 6%;
@@ -61,7 +61,7 @@ All colors MUST be HSL.
     --popover: 0 30% 4%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 70% 45%;
+    --primary: 354 78% 48%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 40% 12%;
