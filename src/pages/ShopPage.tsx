@@ -294,4 +294,124 @@ const ShopProductCard = ({
   );
 };
 
+const QuickViewDialog = ({
+  product,
+  open,
+  onOpenChange,
+}: {
+  product: Product | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  const { addItem } = useCart();
+  const [selectedSize, setSelectedSize] = useState<string>();
+  const [selectedColor, setSelectedColor] = useState<string>();
+
+  useEffect(() => {
+    setSelectedSize(product?.sizes?.[0]);
+    setSelectedColor(product?.colors?.[0]?.name);
+  }, [product]);
+
+  if (!product) return null;
+
+  const selectedColorData = product.colors?.find((color) => color.name === selectedColor);
+  const image = selectedColorData?.images?.[0] || product.images?.[0] || "";
+
+  const handleAddToCart = async () => {
+    await addItem(product.id, 1, selectedSize, selectedColor);
+    onOpenChange(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl overflow-hidden border-border/60 p-0 sm:rounded-xl">
+        <div className="grid gap-0 md:grid-cols-[1fr_0.9fr]">
+          <div className="aspect-square bg-card md:aspect-auto">
+            {image ? (
+              <img src={image} alt={product.name} className="h-full w-full object-cover" />
+            ) : (
+              <div className="flex h-full min-h-[320px] items-center justify-center text-sm text-muted-foreground">
+                Sem imagem
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col p-6 md:p-8">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-black leading-tight md:text-3xl">
+                {product.name}
+              </DialogTitle>
+              <DialogDescription className="line-clamp-3 pt-2">
+                {product.description || "Seleciona a tua opção e adiciona diretamente ao carrinho."}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="mt-5 flex items-end gap-3">
+              <span className="text-2xl font-black text-primary">€{Number(product.price).toFixed(2)}</span>
+              {product.compare_at_price && (
+                <span className="pb-1 text-sm text-muted-foreground line-through">
+                  €{Number(product.compare_at_price).toFixed(2)}
+                </span>
+              )}
+            </div>
+
+            {product.colors?.length > 0 && (
+              <div className="mt-7">
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Cor</p>
+                <div className="flex flex-wrap gap-2">
+                  {product.colors.map((color) => (
+                    <button
+                      key={color.name}
+                      onClick={() => setSelectedColor(color.name)}
+                      className={`flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-semibold transition-all ${
+                        selectedColor === color.name
+                          ? "border-primary bg-primary/10 text-foreground"
+                          : "border-border/60 text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                      }`}
+                    >
+                      <span className="h-3 w-3 rounded-full border border-border" style={{ backgroundColor: color.hex }} />
+                      {color.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {product.sizes?.length > 0 && (
+              <div className="mt-6">
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Tamanho</p>
+                <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                  {product.sizes.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`h-11 rounded-lg border text-sm font-bold transition-all ${
+                        selectedSize === size
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border/60 text-muted-foreground hover:border-primary/50 hover:text-foreground"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Button className="h-12 flex-1 font-bold" onClick={handleAddToCart}>
+                <ShoppingBag className="mr-2 h-4 w-4" />
+                Adicionar ao carrinho
+              </Button>
+              <Button variant="outline" className="h-12" asChild>
+                <Link to={`/product/${product.slug}`}>Ver detalhes</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export default ShopPage;
